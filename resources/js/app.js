@@ -1,6 +1,6 @@
 import './bootstrap';
 import { createApp } from 'vue';
-
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import router from './router';
 
 
