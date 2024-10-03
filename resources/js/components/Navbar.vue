@@ -1,3 +1,9 @@
+<script setup>
+
+import { RouterLink } from 'vue-router';
+
+</script>
+
 <template>
     <div>
         <nav class="navbar navbar-expand-lg bg-body-tertiary">
