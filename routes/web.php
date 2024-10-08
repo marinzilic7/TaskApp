@@ -20,6 +20,8 @@ Route::post('deleteUser/{id}', [UsersController::class, 'deleteUser']);
 Route::post('promoteUser/{id}', [UsersController::class, 'promoteUser']);
 Route::post('addCategory', [CategoriesController::class, 'addCategory']);
 Route::get('getCategories', [CategoriesController::class, 'getCategories']);
+Route::post('deleteCategory/{id}', [CategoriesController::class, 'deleteCategory']);
+Route::post('updateCategory/{id}', [CategoriesController::class, 'updateCategory']);
 
 Route::get('/{any}', function () {
     return view('welcome');

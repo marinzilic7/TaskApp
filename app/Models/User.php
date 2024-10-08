@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model implements Authenticatable
 {
+    use HasFactory;
     use AuthenticatableTrait;
     protected $fillable = ['firstName', 'lastName', 'email', 'password', 'role', 'image', 'last_online', 'is_online'];
 
@@ -19,5 +20,5 @@ class User extends Model implements Authenticatable
     {
         return $this->hasMany(Categories::class);
     }
-    use HasFactory;
+
 }

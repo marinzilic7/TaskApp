@@ -26,6 +26,27 @@ class CategoriesController extends Controller
         $categories = Categories::with('user')->get();
         // Vrati sve kategorije kao JSON odgovor
         return response()->json($categories, 200);
+    }
 
+    public function deleteCategory($id){
+        $category = Categories::find($id);
+        $category->delete();
+        return response()->json(['message' => 'Kategorija uspješno obrisana'], 200);
+    }
+
+    public function updateCategory(Request $request, $id){
+        $data = $request->validate([
+            'name' => 'required|string',
+        ],
+        [
+            'name.required' => 'Ime kategorije je obavezno',
+        ]);
+
+
+        $data['updated_at'] = now();
+
+        $category = Categories::find($id);
+        $category->update($data);
+        return response()->json(['message' => 'Kategorija uspješno ažurirana'], 200);
     }
 }
