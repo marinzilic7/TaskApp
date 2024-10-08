@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,8 @@ Route::post('/uploadProfile', [UsersController::class, 'uploadProfileImage']);
 Route::get('getUsers', [UsersController::class, 'getUsers']);
 Route::post('deleteUser/{id}', [UsersController::class, 'deleteUser']);
 Route::post('promoteUser/{id}', [UsersController::class, 'promoteUser']);
+Route::post('addCategory', [CategoriesController::class, 'addCategory']);
+Route::get('getCategories', [CategoriesController::class, 'getCategories']);
 
 Route::get('/{any}', function () {
     return view('welcome');

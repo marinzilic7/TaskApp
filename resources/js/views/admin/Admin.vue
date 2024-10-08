@@ -117,7 +117,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .sidebar {
     position: fixed;
     top: 1%;
