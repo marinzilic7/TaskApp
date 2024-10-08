@@ -1,8 +1,15 @@
+<script></script>
+
 <template>
     <div>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div v-if="loading" class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary" v-if="!loading">
             <div class="container-fluid">
-                <RouterLink class="navbar-brand text-light" to="/">TaskApp</RouterLink>
+                <RouterLink class="navbar-brand text-light" to="/"
+                    >TaskApp</RouterLink
+                >
                 <button
                     class="navbar-toggler"
                     type="button"
@@ -14,37 +21,98 @@
                 >
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div
+                    class="collapse navbar-collapse"
+                    id="navbarSupportedContent"
+                >
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <RouterLink aria-current="page" class="nav-link text-light" to="/">Home</RouterLink>
+                            <RouterLink
+                                aria-current="page"
+                                class="nav-link text-light"
+                                to="/"
+                                >To do</RouterLink
+                            >
                         </li>
                     </ul>
 
                     <ul class="navbar-nav mb-2 mb-lg-0">
-                        <!-- Prikazivanje "Register" i "Login" ako korisnik nije prijavljen -->
                         <li v-if="!isLoggedUser" class="nav-item">
-                            <RouterLink aria-current="page" class="nav-link text-light" to="/register">Register</RouterLink>
+                            <RouterLink
+                                aria-current="page"
+                                class="nav-link text-light"
+                                to="/register"
+                                >Register</RouterLink
+                            >
                         </li>
                         <li v-if="!isLoggedUser" class="nav-item">
-                            <RouterLink aria-current="page" class="nav-link text-light login" to="/login">Login</RouterLink>
+                            <RouterLink
+                                aria-current="page"
+                                class="nav-link text-light login"
+                                to="/login"
+                                >Login</RouterLink
+                            >
                         </li>
+                        <div v-if="loggedInUser.image === null">
+                            <img
+                                src="https://www.pngall.com/wp-content/uploads/5/Profile-PNG-File.png"
+                                class="rounded-circle"
+                                style="width: 40px"
+                            />
+                        </div>
+                        <div v-else>
+                            <img
+                                :src="getImageUrl(loggedInUser.image)"
+                                class="rounded-circle img-fluid"
+                                style="width: 40px"
+                            />
+                        </div>
 
-                        <!-- Prikazivanje korisničkog imena i logout opcije ako je korisnik prijavljen -->
                         <li class="nav-item dropdown me-5" v-if="isLoggedUser">
-                            <a class="name-user nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a
+                                class="name-user nav-link dropdown-toggle text-light"
+                                href="#"
+                                id="navbarDropdown"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
                                 {{ loggedInUser.firstName }}
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                            <ul
+                                class="dropdown-menu"
+                                aria-labelledby="navbarDropdown"
+                            >
+                                <li v-if="loggedInUser.role === 'admin'">
+                                    <RouterLink
+                                        class="dropdown-item"
+                                        to="/admin"
+                                        >Admin</RouterLink
+                                    >
+                                </li>
                                 <li>
-                                    <a @click="logout()" class="dropdown-item" href="#">Odjava</a>
+                                    <RouterLink
+                                        class="dropdown-item"
+                                        to="/profile"
+                                        >Račun</RouterLink
+                                    >
+                                </li>
+                                <li>
+                                    <a
+                                        @click="logout()"
+                                        class="dropdown-item"
+                                        href="#"
+                                        >Odjava</a
+                                    >
                                 </li>
                             </ul>
                         </li>
 
-                        <!-- Prikazivanje datuma i vremena -->
                         <li class="nav-item d-flex">
-                            <a class="nav-link text-light me-3 me-lg-0">{{ date }}</a>
+                            <a class="nav-link text-light me-3 me-lg-0">{{
+                                date
+                            }}</a>
                             <a class="nav-link text-light">{{ time }}</a>
                         </li>
                     </ul>
@@ -61,25 +129,35 @@ export default {
             date: null,
             time: null,
             isLoggedUser: false,
-            loggedInUser: null,  // Dodajemo loggedInUser
+            loggedInUser: null,
+            loading: true,
         };
     },
     mounted() {
         this.currentTime();
     },
     created() {
-        this.isLogged();  // Poziv metode koja proverava da li je korisnik prijavljen
+        this.isLogged();
     },
     methods: {
         currentTime() {
             setInterval(() => {
                 const currentDate = new Date();
-                const dayOfWeek = currentDate.toLocaleString("hr-HR", { weekday: "short" });
-                const dayAndMonth = currentDate.toLocaleString("hr-HR", { day: "numeric", month: "short" });
+                const dayOfWeek = currentDate.toLocaleString("hr-HR", {
+                    weekday: "short",
+                });
+                const dayAndMonth = currentDate.toLocaleString("hr-HR", {
+                    day: "numeric",
+                    month: "short",
+                });
                 const year = currentDate.getFullYear();
-                const time = currentDate.toLocaleTimeString("hr-HR", { hour: "2-digit", minute: "2-digit" });
+                const time = currentDate.toLocaleTimeString("hr-HR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                });
                 this.time = `${time}`;
                 this.date = `${dayOfWeek.toLowerCase()}. ${dayAndMonth} ${year}.`;
+                this.loading = false;
             }, 1000);
         },
         isLogged() {
@@ -87,11 +165,10 @@ export default {
                 .get("/isLogged")
                 .then((response) => {
                     if (response.data && response.data.firstName) {
-                        // Ako je korisnik prijavljen
                         this.loggedInUser = response.data;
                         this.isLoggedUser = true;
+                        console.log(this.loggedInUser.image);
                     } else {
-                        // Ako korisnik nije prijavljen
                         this.isLoggedUser = false;
                         this.loggedInUser = null;
                     }
@@ -114,6 +191,9 @@ export default {
                     console.log(error);
                 });
         },
+        getImageUrl(imageName) {
+            return `/profile_images/${imageName}`;
+        },
     },
 };
 </script>
@@ -126,5 +206,13 @@ export default {
 .login::after {
     content: " | ";
     margin-left: 10px;
+}
+
+.spinner-border {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    color: #0c2e53;
+    z-index: 1000;
 }
 </style>

@@ -7,10 +7,11 @@ use Illuminate\Auth\Authenticatable as AuthenticatableTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class User extends Model implements Authenticatable
 {
     use AuthenticatableTrait;
-    protected $fillable = ['firstName', 'lastName', 'email', 'password', 'role', 'image'];
+    protected $fillable = ['firstName', 'lastName', 'email', 'password', 'role', 'image', 'last_online', 'is_online'];
 
 
 

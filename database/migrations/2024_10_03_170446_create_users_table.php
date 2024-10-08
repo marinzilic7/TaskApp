@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('role')->default('user');
             $table->string('image')->nullable();
+            $table->timestamp('last_online')->nullable();
+            $table->boolean('is_online')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -29,6 +31,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('is_online'); // Brisanje polja ako migraciju vraćate
+        });
     }
 };
