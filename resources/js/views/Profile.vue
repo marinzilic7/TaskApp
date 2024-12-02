@@ -23,6 +23,7 @@ const uploadImage = async () => {
         } else {
             alert('Failed to upload image.');
         }
+
     }
 };
 
