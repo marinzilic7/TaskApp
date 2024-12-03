@@ -76,6 +76,18 @@ import { RouterLink } from "vue-router";
                     />
                 </div>
                 <p>{{ task.title }}</p>
+                <div>
+                    <p class="task-date date">
+                        {{ formatDate(task.created_at) }}
+                    </p>
+                    <i
+                        class="task-calendar bi bi-calendar"
+                        style="cursor: pointer"
+                        title="Izaberite datum"
+                    ></i>
+
+                </div>
+
                 <i
                     :class="[
                         'bi',
@@ -313,6 +325,34 @@ export default {
                     console.log(error);
                 });
         },
+        formatDate(date) {
+            const options = { day: "numeric", month: "long", year: "numeric" };
+            const formattedDate = new Intl.DateTimeFormat(
+                "hr-HR",
+                options
+            ).format(new Date(date));
+
+            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
+            const [day, month, year] = formattedDate.split(" ");
+
+            // Uzmi prva tri slova mjeseca i spoji dijelove
+            return `${day} ${month.substring(0, 3)} ${year}`;
+        },
+        openDatePicker() {
+            this.isDatePickerVisible = true; // Prikazuje input
+            this.$nextTick(() => {
+                // Fokusira se na input kad je prikazan
+                const datePicker = this.$refs.dateInput;
+                if (datePicker) {
+                    datePicker.focus();
+                }
+            });
+        },
+        // Metoda za ažuriranje datuma zadatka
+        updateTaskDate(taskId, newDate) {
+            console.log(`Zadatak ID ${taskId} ažuriran na datum: ${newDate}`);
+            // Ovdje možete poslati novi datum na backend ako je potrebno
+        },
     },
 };
 </script>
@@ -361,5 +401,24 @@ li {
 
 .number-items {
     color: #175392;
+}
+
+.date {
+    font-size: 13px;
+    color: grey;
+}
+
+.task-date {
+    position: absolute; /* Fiksiranje datuma u sredinu */
+    left: 50%;
+    margin-top: 3px;
+    transform: translateX(-50%); /* Pomaknite datum u sredinu */
+}
+
+.task-calendar {
+    position: absolute;
+    left: 53%;
+
+    transform: translateX(-50%);
 }
 </style>
