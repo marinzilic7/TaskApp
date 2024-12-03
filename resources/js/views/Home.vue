@@ -63,6 +63,11 @@ import { RouterLink } from "vue-router";
     <hr />
     <br />
     <div class="ms-5 me-5 mt-3" v-for="task in tasks" :key="task.id">
+        <div class="head-items border pt-2 d-flex justify-content-between">
+            <p class="ms-5">Naslov</p>
+            <p>Krajnji rok</p>
+            <p class="me-3">Važnost</p>
+        </div>
         <div class="border">
             <div class="d-flex gap-2 mt-3 ms-3">
                 <div class="form-check">
@@ -76,16 +81,19 @@ import { RouterLink } from "vue-router";
                     />
                 </div>
                 <p>{{ task.title }}</p>
-                <div>
-                    <p class="task-date date">
-                        {{ formatDate(task.created_at) }}
-                    </p>
-                    <i
-                        class="task-calendar bi bi-calendar"
-                        style="cursor: pointer"
-                        title="Izaberite datum"
-                    ></i>
+                <div v-if="task.deadline === null">
+                    <input
+                        type="date"
+                        class="task-date border-0"
+                        v-model="task.deadlineDate"
+                        @change="addDeadline(task.id)"
+                    />
+                </div>
 
+                <div v-else>
+                    <p @click="changeDeadline(task.id)" class="task-date">
+                        {{ formatDate(task.deadline) }}
+                    </p>
                 </div>
 
                 <i
@@ -162,8 +170,10 @@ export default {
             date: null,
             time: null,
             importantTask: [],
+
         };
     },
+
     created() {
         this.fetchCategories();
         this.getTasks();
@@ -176,7 +186,7 @@ export default {
         addTask() {
             const Data = {
                 title: this.form.title,
-
+                deadline: this.form.deadline,
                 category_id: this.form.category_id,
             };
             console.log("Category Id je", Data);
@@ -287,6 +297,7 @@ export default {
                 .post(`/deleteTask/${taskId}`)
                 .then((response) => {
                     this.getTasks();
+                    this.getImportant();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -338,20 +349,28 @@ export default {
             // Uzmi prva tri slova mjeseca i spoji dijelove
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
-        openDatePicker() {
-            this.isDatePickerVisible = true; // Prikazuje input
-            this.$nextTick(() => {
-                // Fokusira se na input kad je prikazan
-                const datePicker = this.$refs.dateInput;
-                if (datePicker) {
-                    datePicker.focus();
-                }
-            });
+
+
+        changeDeadline(taskId) {
+            console.log("Promjena roka za task ID:", taskId);
+            const task = this.tasks.find((task) => task.id === taskId);
+            if (task) {
+                task.deadline = null; // Resetiranje roka
+                console.log(task.deadline);
+            }
         },
-        // Metoda za ažuriranje datuma zadatka
-        updateTaskDate(taskId, newDate) {
-            console.log(`Zadatak ID ${taskId} ažuriran na datum: ${newDate}`);
-            // Ovdje možete poslati novi datum na backend ako je potrebno
+        addDeadline(taskId) {
+            axios
+                .post(`/addDeadline/${taskId}`, {
+                    deadline: this.tasks.find((task) => task.id === taskId)
+                        .deadlineDate,
+                })
+                .then((response) => {
+                    this.getTasks();
+                })
+                .catch((error) => {
+                    console.error("Greška pri dodavanju roka:", error);
+                });
         },
     },
 };
@@ -412,7 +431,8 @@ li {
     position: absolute; /* Fiksiranje datuma u sredinu */
     left: 50%;
     margin-top: 3px;
-    transform: translateX(-50%); /* Pomaknite datum u sredinu */
+    transform: translateX(-50%);
+    font-size: 12px; /* Pomaknite datum u sredinu */
 }
 
 .task-calendar {
@@ -420,5 +440,10 @@ li {
     left: 53%;
 
     transform: translateX(-50%);
+}
+
+.head-items {
+    font-size: 12px;
+    color: grey;
 }
 </style>

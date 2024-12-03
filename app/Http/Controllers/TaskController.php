@@ -17,7 +17,6 @@ class TaskController extends Controller
             'title' => 'required',
             'category_id' => 'required',
             'user_id' => '',
-
         ],
 
         );
@@ -90,4 +89,19 @@ class TaskController extends Controller
         return response()->json(['message' => 'Uspješno dodan zadatak'], 200);
     }
 
+    public function addDeadline($id, Request $request){
+
+        $data = $request->validate([
+            'deadline' => 'required',
+        ],
+
+        );
+
+        $task = Task::find($id);
+        $task->deadline = $data['deadline'];
+        $task->save();
+        return response()->json(['message' => 'Uspješno dodan rok zadatku'], 200);
+
+
+    }
 }
