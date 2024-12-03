@@ -1,29 +1,28 @@
 <script setup>
 import Navbar from "../components/Navbar.vue";
-import { ref } from 'vue';
-import axios from 'axios';
+import { ref } from "vue";
+import axios from "axios";
 
 const image = ref(null);
 
 const uploadImage = async () => {
     const formData = new FormData();
-    formData.append('image', image.value);
+    formData.append("image", image.value);
 
     try {
-        const response = await axios.post('/uploadProfile', formData, {
+        const response = await axios.post("/uploadProfile", formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
         });
-        alert(response.data.message);  // Ako je upload uspješan
+        alert(response.data.message); // Ako je upload uspješan
     } catch (error) {
         if (error.response && error.response.status === 400) {
-            alert(error.response.data.error);  // Prikaz poruke o grešci iz backend-a
+            alert(error.response.data.error); // Prikaz poruke o grešci iz backend-a
         } else {
-            alert('Failed to upload image.');
+            alert("Failed to upload image.");
         }
-
     }
 };
 
@@ -42,6 +41,9 @@ const imageChange = (event) => {
             <input type="file" @change="imageChange" />
             <button type="submit">Upload Image</button>
         </form>
+    </div>
+    <div>
+
     </div>
 </template>
 

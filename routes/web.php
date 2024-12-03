@@ -30,7 +30,11 @@ Route::post('updateCategory/{id}', [CategoriesController::class, 'updateCategory
 
 Route::post('addTask', [TaskController::class, 'addTask']);
 Route::get('getTasks', [TaskController::class, 'getTasks']);
-
+Route::post('deleteTask/{id}', [TaskController::class, 'deleteTask']);
+Route::post('importantTask/{id}', [TaskController::class, 'importantTask']);
+Route::get('getImportant', [TaskController::class, 'getImportant']);
+Route::post('deleteImportant/{id}', [TaskController::class, 'deleteImportant']);
+Route::post('addImportant', [TaskController::class, 'addImportant']);
 //Subtask routes
 Route::post('addSubtask', [SubtaskController::class, 'addSubtask']);
 Route::get('getSubtasks/{id}', [SubtaskController::class, 'getSubtasks']);

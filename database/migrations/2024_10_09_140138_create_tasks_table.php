@@ -22,6 +22,7 @@ return new class extends Migration
             $table->text('status')->default('Na čekanju');
             $table->dateTime('completed_at')->nullable();
             $table->timestamps();
+            $table->boolean('isImportant')->default(false);
         });
     }
 

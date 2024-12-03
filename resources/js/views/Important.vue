@@ -21,14 +21,14 @@ import { RouterLink } from "vue-router";
         >
             <i class="bi bi-list"></i>
         </button>
-        <h5 class="mt-2">Moj dan</h5>
+        <h5 class="mt-2">Važno</h5>
     </div>
     <div class="ms-5">
         <p class="date-text ms-4 text-muted">{{ date }}</p>
     </div>
     <div>
         <form
-            class="ms-5 me-5 z-3"
+            class="ms-5 me-5"
             action="
         "
         >
@@ -53,7 +53,7 @@ import { RouterLink } from "vue-router";
                         {{ category.name }}
                     </option>
                 </select>
-                <button @click="addTask" class="btn add-button" type="button">
+                <button @click="addImportant()" class="btn add-button" type="button">
                     <i class="bi bi-plus text-light add-btn"></i>
                 </button>
             </div>
@@ -72,7 +72,7 @@ import { RouterLink } from "vue-router";
                         name="flexRadioDefault"
                         :id="'checkbox-' + task.id"
                         :name="'task-' + task.id"
-                        @change="deleteTask(task.id)"
+                        @change="deleteImportant(task.id)"
                     />
                 </div>
                 <p>{{ task.title }}</p>
@@ -106,18 +106,16 @@ import { RouterLink } from "vue-router";
         </div>
         <div class="offcanvas-body">
             <div>
-                <li class="list-items d-flex" @click="closeAccordation()">
+                <li class="list-items d-flex"  @click="closeAccordation()">
                     <i class="bi bi-brightness-high ms-2"></i>
                     <RouterLink
                         class="ms-2 text-decoration-none text-dark"
                         to="/"
                         >Moj dan</RouterLink
                     >
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        tasks.length
-                    }}</a>
+                    <a class="number-items ms-auto text-decoration-none">{{noImportant.length}}</a>
                 </li>
-                <li class="list-items d-flex mt-4">
+                <li class="list-items d-flex mt-3">
                     <i class="acc-star bi bi-star ms-2"></i>
                     <RouterLink
                         to="/important"
@@ -125,9 +123,7 @@ import { RouterLink } from "vue-router";
                     >
                         Važno
                     </RouterLink>
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        importantTask.length
-                    }}</a>
+                    <a class="number-items ms-auto text-decoration-none">{{tasks.length}}</a>
                 </li>
             </div>
         </div>
@@ -149,19 +145,20 @@ export default {
             subtaskTitle: "",
             date: null,
             time: null,
-            importantTask: [],
+            noImportant:[],
+
         };
     },
     created() {
         this.fetchCategories();
-        this.getTasks();
         this.getImportant();
+        this.getTasks();
     },
     mounted() {
         this.currentTime();
     },
     methods: {
-        addTask() {
+        addImportant() {
             const Data = {
                 title: this.form.title,
 
@@ -169,9 +166,10 @@ export default {
             };
             console.log("Category Id je", Data);
             axios
-                .post("/addTask", this.form)
+                .post("/addImportant", this.form)
                 .then((response) => {
                     this.getTasks();
+                    this.getImportant();
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -193,9 +191,9 @@ export default {
                     console.log(error);
                 });
         },
-        getTasks() {
+        getImportant() {
             axios
-                .get("/getTasks")
+                .get("/getImportant")
                 .then((response) => {
                     this.tasks = response.data;
                     console.log("Ovo su taskovi", this.tasks);
@@ -270,11 +268,11 @@ export default {
                 this.date = `${dayOfWeek.toLowerCase()}. ${dayAndMonth} ${year}.`;
             }, 1000);
         },
-        deleteTask(taskId) {
+        deleteImportant(taskId) {
             axios
                 .post(`/deleteTask/${taskId}`)
                 .then((response) => {
-                    this.getTasks();
+                    this.getImportant();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -282,30 +280,28 @@ export default {
         },
         important(id) {
             axios.post(`/importantTask/${id}`).then((response) => {
-                this.getTasks();
                 this.getImportant();
             });
         },
         closeAccordation() {
             const offcanvasElement =
                 document.getElementById("offcanvasExample");
-
-            if (offcanvasElement) {
-                // Koristite Bootstrap Offcanvas API za zatvaranje
-                const offcanvasInstance =
-                    bootstrap.Offcanvas.getInstance(offcanvasElement);
-                if (offcanvasInstance) {
-                    offcanvasInstance.hide();
-                }
+            const backdropElement = document.querySelector(
+                ".offcanvas-backdrop"
+            );
+            offcanvasElement.classList.remove("show");
+            if (backdropElement) {
+                backdropElement.remove();
             }
         },
-        getImportant() {
+        getTasks() {
             axios
-                .get("/getImportant")
+                .get("/getTasks")
                 .then((response) => {
-                    this.importantTask = response.data;
-                    console.log("Ovo su taskovi", this.importantTask);
-                    this.importantTask.forEach((task) => {
+                    this.noImportant = response.data;
+                    console.log("Ovo su taskovi", this.noImportant);
+                    console.log(this.noImportant.length);
+                    this.noImportant.forEach((task) => {
                         this.getSubtasks(task.id); // Dohvaćamo podzadatke za svaki task
                     });
                 })
@@ -359,7 +355,7 @@ li {
     color: black;
 }
 
-.number-items {
-    color: #175392;
+.number-items{
+    color:#175392;
 }
 </style>

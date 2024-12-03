@@ -6,6 +6,7 @@ import Admin from "../views/admin/Admin.vue";
 import Users from "../views/admin/Users.vue";
 import Categories from "../views/admin/Categories.vue";
 import Profile from "../views/Profile.vue";
+import Important from "../views/Important.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,18 +37,29 @@ const router = createRouter({
             component: Profile,
         },
         {
-            path: '/users',
-            name: 'Users',
+            path: "/users",
+            name: "Users",
             component: Users,
-          },
-          {
-            path: '/categories',
-            name: 'Categories',
+        },
+        {
+            path: "/categories",
+            name: "Categories",
             component: Categories,
-          },
+        },
+        {
+            path: "/important",
+            name: "Important",
+            component: Important,
+        },
     ],
 });
 
+router.afterEach(() => {
+    const backdropElement = document.querySelector(".offcanvas-backdrop");
+    if (backdropElement) {
+        backdropElement.remove();
+    }
+});
 // // Navigacijski stražar za provjeru autentifikacije
 // router.beforeEach((to, from, next) => {
 //     const isAuthenticated = !!localStorage.getItem('token'); // Provjerite da li je korisnik autentificiran

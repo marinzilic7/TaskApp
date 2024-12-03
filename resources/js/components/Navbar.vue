@@ -31,7 +31,7 @@
                                 aria-current="page"
                                 class="nav-link text-light"
                                 to="/"
-                                >To do</RouterLink
+                                >Task</RouterLink
                             >
                         </li>
                     </ul>
@@ -171,12 +171,14 @@ export default {
                     } else {
                         this.isLoggedUser = false;
                         this.loggedInUser = null;
+                        this.$router.push("/login");
                     }
                 })
                 .catch((error) => {
                     console.log(error);
                     this.isLoggedUser = false;
                     this.loggedInUser = null;
+
                 });
         },
         logout() {
