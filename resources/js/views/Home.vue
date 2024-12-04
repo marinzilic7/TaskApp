@@ -284,6 +284,32 @@ import { RouterLink } from "vue-router";
                         unTasks.length
                     }}</a>
                 </li>
+                <li class="list-items d-flex mt-4">
+                    <i class="bi bi-person ms-2"></i>
+                    <RouterLink
+                        to="/"
+                        class="ms-2 text-decoration-none text-dark"
+                    >
+                        Timski rad
+                    </RouterLink>
+                    <a
+                        class="number-items ms-auto text-decoration-none"
+                        >{{
+                    }}</a>
+                </li>
+                <hr />
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-plus fs-3"></i>
+                    <input
+                        id="add_list"
+                        class="border-0"
+                        placeholder="Dodaj novi popis"
+                        required
+                    />
+                    <button class="add_list_btn btn">
+                        <i class="bi bi-check2"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -564,7 +590,7 @@ export default {
                 });
         },
 
-        getUncompletedTask(){
+        getUncompletedTask() {
             axios
                 .get("/getUncompletedTask")
                 .then((response) => {
@@ -577,7 +603,7 @@ export default {
                 .catch((error) => {
                     console.log(error);
                 });
-        }
+        },
     },
 };
 </script>
@@ -658,5 +684,20 @@ li {
     font-size: 12px;
     padding: 5px;
     color: red;
+}
+
+#add_list {
+    outline: none;
+}
+
+#add_list::placeholder {
+    color: #175392;
+    font-size: 14px;
+}
+
+.add_list_btn{
+    background-color:#175392 ;
+    color:#fff;
+
 }
 </style>

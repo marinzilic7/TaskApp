@@ -508,6 +508,19 @@ import { RouterLink } from "vue-router";
                          unTasks.length
                     }}</a>
                 </li>
+                <li class="list-items d-flex mt-4">
+                    <i class="bi bi-person ms-2"></i>
+                    <RouterLink
+                        to="/"
+                        class="ms-2 text-decoration-none text-dark"
+                    >
+                        Timski rad
+                    </RouterLink>
+                    <a class="number-items ms-auto text-decoration-none">{{
+
+                    }}</a>
+                </li>
+
             </div>
         </div>
     </div>
