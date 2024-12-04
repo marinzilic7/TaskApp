@@ -272,6 +272,19 @@ import { RouterLink } from "vue-router";
                         tasks.length
                     }}</a>
                 </li>
+                <li class="list-items d-flex mt-4">
+                    <i class="bi bi-calendar-check ms-2"></i>
+                    <RouterLink
+                        to="/planned"
+                        class="ms-2 text-decoration-none text-dark"
+                    >
+                        Planirano
+                    </RouterLink>
+                    <a
+                        class="number-items ms-auto text-decoration-none"
+                        >{{unTasks.length
+                    }}</a>
+                </li>
             </div>
         </div>
     </div>
@@ -295,13 +308,15 @@ export default {
             noImportant: [],
             completedTasks: [],
             newDate: null,
+            unTasks: [],
         };
     },
     created() {
         this.fetchCategories();
         this.getImportant();
         this.getTasks();
-        this.getCompletedImportantTasks ();
+        this.getCompletedImportantTasks();
+        this.getUncompletedTask();
     },
     mounted() {
         this.currentTime();
@@ -319,6 +334,7 @@ export default {
                 .then((response) => {
                     this.getTasks();
                     this.getImportant();
+                    this.getUncompletedTask();
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -373,6 +389,7 @@ export default {
                 .then((response) => {
                     alert(response.data.message);
                     this.getTasks(); // Osvježavanje liste taskova.
+
                 })
                 .catch((error) => {
                     console.error("Greška pri dodavanju podzadatka:", error);
@@ -423,6 +440,7 @@ export default {
                 .then((response) => {
                     this.getImportant();
                     this.getCompletedImportantTasks();
+                    this.getUncompletedTask();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -528,6 +546,7 @@ export default {
                     this.getTasks();
                     this.getImportant();
                     this.getCompletedImportantTasks();
+                    this.getUncompletedTask();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -544,6 +563,20 @@ export default {
                     console.log(error);
                 });
         },
+        getUncompletedTask(){
+            axios
+                .get("/getUncompletedTask")
+                .then((response) => {
+                    this.unTasks = response.data;
+                    console.log("Ovo su NEDOVRŠENI TASKOVI", this.unTasks);
+                    this.unTasks.forEach((task) => {
+                        this.getSubtasks(task.id); // Dohvaćamo podzadatke za svaki task
+                    });
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
     },
 };
 </script>

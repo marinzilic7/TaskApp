@@ -7,6 +7,7 @@ import Users from "../views/admin/Users.vue";
 import Categories from "../views/admin/Categories.vue";
 import Profile from "../views/Profile.vue";
 import Important from "../views/Important.vue";
+import Planned from "../views/Planned.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
             path: "/important",
             name: "Important",
             component: Important,
+        },
+        {
+            path: "/planned",
+            name: "Planned",
+            component: Planned,
         },
     ],
 });

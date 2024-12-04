@@ -23,7 +23,7 @@ return new class extends Migration
             $table->dateTime('completed_at')->nullable();
             $table->timestamps();
             $table->boolean('isImportant')->default(false);
-            $table->dateTime('deadline')->nullable();
+            $table->dateTime('deadline')->default(now());
         });
     }
 

@@ -21,7 +21,7 @@ import { RouterLink } from "vue-router";
         >
             <i class="bi bi-list"></i>
         </button>
-        <h5 class="mt-2">Moj dan</h5>
+        <h5 class="mt-2">Planirano</h5>
     </div>
     <div class="ms-5">
         <p class="date-text ms-4 text-muted">{{ date }}</p>
@@ -71,71 +71,10 @@ import { RouterLink } from "vue-router";
     </div>
     <hr />
 
-    <div class="ms-5 me-5 mt-3" v-for="task in tasks" :key="task.id">
-        <div class="border" v-if="task.completed === 0">
-            <div class="d-flex gap-2 mt-3 ms-3">
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="flexRadioDefault"
-                        :id="'checkbox-' + task.id"
-                        :name="'task-' + task.id"
-                        @change="deleteTask(task.id)"
-                    />
-                </div>
-                <p>{{ task.title }}</p>
-
-                <div v-if="task.deadline === null">
-                    <input
-                        type="date"
-                        class="task-date border-0"
-                        v-model="task.deadlineDate"
-                        @change="addDeadline(task.id)"
-                    />
-                </div>
-
-                <div v-else>
-                    <p
-                        v-if="
-                            formatForComparison(task.deadline) &&
-                            formatForComparison(task.deadline) <
-                                formatForComparison(newDate)
-                        "
-                        @click="changeDeadline(task.id)"
-                        class="p-border task-date"
-                    >
-                        {{ formatDate(task.deadline) }}
-                    </p>
-
-                    <p
-                        v-else
-                        @click="changeDeadline(task.id)"
-                        class="task-date"
-                    >
-                        {{ formatDate(task.deadline) }}
-                    </p>
-                </div>
-
-                <i
-                    :class="[
-                        'bi',
-                        task.isImportant ? 'bi-star-fill' : 'bi-star',
-                        'ms-auto me-3',
-                    ]"
-                    title="Označi kao važno"
-                    @click="important(task.id)"
-                >
-                </i>
-            </div>
-        </div>
-    </div>
     <hr />
-    <div
-        class="accordion accordion-flush ms-5 me-5 mt-5 border border-primary"
-        id="accordionFlushExample"
-    >
-        <div class="accordion-item">
+
+    <div class="accordion accordion-flush ms-5 me-5" id="accordionFlushExample">
+        <div class="accordion-item border border-primary">
             <h2 class="accordion-header">
                 <button
                     class="accordion-button collapsed"
@@ -145,12 +84,7 @@ import { RouterLink } from "vue-router";
                     aria-expanded="false"
                     aria-controls="flush-collapseOne"
                 >
-                    <div class="d-flex align-items-center gap-2">
-                        Dovršeno
-                        <p class="text-primary fw-bold mt-3">
-                            {{ completedTasks.length }}
-                        </p>
-                    </div>
+                    Ranije
                 </button>
             </h2>
             <div
@@ -164,7 +98,15 @@ import { RouterLink } from "vue-router";
                         v-for="task in tasks"
                         :key="task.id"
                     >
-                        <div class="border" v-if="task.completed === 1">
+                        <div
+                            class="border"
+                            v-if="
+                                task.completed === 0 &&
+                                formatForComparison(task.deadline) &&
+                                formatForComparison(task.deadline) <
+                                    formatForComparison(newDate)
+                            "
+                        >
                             <div class="d-flex gap-2 mt-3 ms-3">
                                 <div class="form-check">
                                     <input
@@ -173,30 +115,312 @@ import { RouterLink } from "vue-router";
                                         name="flexRadioDefault"
                                         :id="'checkbox-' + task.id"
                                         :name="'task-' + task.id"
-                                        @change="deleteCompleted(task.id)"
+                                        @change="deleteTask(task.id)"
                                     />
                                 </div>
-                                <p class="text-decoration-line-through">
-                                    {{ task.title }}
-                                </p>
+                                <p>{{ task.title }}</p>
 
-                                <div v-if="task.deadline === null">
+                                <div>
                                     <input
                                         type="date"
-                                        class="task-date border-0"
+                                        class="task-date-input border-0"
                                         v-model="task.deadlineDate"
                                         @change="addDeadline(task.id)"
                                     />
-                                </div>
 
-                                <div v-else>
                                     <p
                                         v-if="
                                             formatForComparison(
                                                 task.deadline
                                             ) &&
-                                            formatForComparison(task.deadline) >
-                                                formatForComparison(newDate)
+                                            formatForComparison(
+                                                task.deadline
+                                            ) >= formatForComparison(newDate)
+                                        "
+                                        @click="changeDeadline(task.id)"
+                                        class="task-date"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                    <p
+                                        v-else
+                                        class="p-border"
+                                        @click="changeDeadline(task.id)"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                </div>
+
+                                <i
+                                    :class="[
+                                        'bi',
+                                        task.isImportant
+                                            ? 'bi-star-fill'
+                                            : 'bi-star',
+                                        'ms-auto me-3',
+                                    ]"
+                                    title="Označi kao važno"
+                                    @click="important(task.id)"
+                                >
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item border border-primary">
+            <h2 class="accordion-header">
+                <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#flush-collapseTwo"
+                    aria-expanded="false"
+                    aria-controls="flush-collapseTwo"
+                >
+                    Danas
+                </button>
+            </h2>
+            <div
+                id="flush-collapseTwo"
+                class="accordion-collapse collapse"
+                data-bs-parent="#accordionFlushExample"
+            >
+                <div class="accordion-body">
+                    <div
+                        class="ms-5 me-5 mt-3"
+                        v-for="task in tasks"
+                        :key="task.id"
+                    >
+                        <div
+                            class="border"
+                            v-if="
+                                task.completed === 0 &&
+                                formatForComparison(task.deadline) &&
+                                formatForComparison(task.deadline).getTime() ===
+                                    formatForComparison(newDate).getTime()
+                            "
+                        >
+                            <div class="d-flex gap-2 mt-3 ms-3">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="flexRadioDefault"
+                                        :id="'checkbox-' + task.id"
+                                        :name="'task-' + task.id"
+                                        @change="deleteTask(task.id)"
+                                    />
+                                </div>
+                                <p>{{ task.title }}</p>
+
+                                <div>
+                                    <input
+                                        type="date"
+                                        class="task-date-input border-0"
+                                        v-model="task.deadlineDate"
+                                        @change="addDeadline(task.id)"
+                                    />
+
+                                    <p
+                                        v-if="
+                                            formatForComparison(
+                                                task.deadline
+                                            ) &&
+                                            formatForComparison(
+                                                task.deadline
+                                            ) >= formatForComparison(newDate)
+                                        "
+                                        @click="changeDeadline(task.id)"
+                                        class="task-date"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                    <p
+                                        v-else
+                                        class="p-border task-date"
+                                        @click="changeDeadline(task.id)"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                </div>
+
+                                <i
+                                    :class="[
+                                        'bi',
+                                        task.isImportant
+                                            ? 'bi-star-fill'
+                                            : 'bi-star',
+                                        'ms-auto me-3',
+                                    ]"
+                                    title="Označi kao važno"
+                                    @click="important(task.id)"
+                                >
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item border border-primary">
+            <h2 class="accordion-header">
+                <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#flush-collapseThree"
+                    aria-expanded="false"
+                    aria-controls="flush-collapseThree"
+                >
+                    Sutra
+                </button>
+            </h2>
+            <div
+                id="flush-collapseThree"
+                class="accordion-collapse collapse"
+                data-bs-parent="#accordionFlushExample"
+            >
+                <div class="accordion-body">
+                    <div
+                        class="ms-5 me-5 mt-3"
+                        v-for="task in tasks"
+                        :key="task.id"
+                    >
+                        <div
+                            class="border"
+                            v-if="
+                                task.completed === 0 &&
+                                formatForComparison(task.deadline) &&
+                                formatForComparison(task.deadline).getTime() ===
+                                    formatForComparison(
+                                        getTomorrowDate()
+                                    ).getTime()
+                            "
+                        >
+                            <div class="d-flex gap-2 mt-3 ms-3">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="flexRadioDefault"
+                                        :id="'checkbox-' + task.id"
+                                        :name="'task-' + task.id"
+                                        @change="deleteTask(task.id)"
+                                    />
+                                </div>
+                                <p>{{ task.title }}</p>
+
+                                <div>
+                                    <input
+                                        type="date"
+                                        class="task-date-input border-0"
+                                        v-model="task.deadlineDate"
+                                        @change="addDeadline(task.id)"
+                                    />
+
+                                    <p
+                                        v-if="
+                                            formatForComparison(
+                                                task.deadline
+                                            ) &&
+                                            formatForComparison(
+                                                task.deadline
+                                            ) >= formatForComparison(newDate)
+                                        "
+                                        @click="changeDeadline(task.id)"
+                                        class="task-date"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                    <p
+                                        v-else
+                                        class="p-border task-date"
+                                        @click="changeDeadline(task.id)"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                </div>
+
+                                <i
+                                    :class="[
+                                        'bi',
+                                        task.isImportant
+                                            ? 'bi-star-fill'
+                                            : 'bi-star',
+                                        'ms-auto me-3',
+                                    ]"
+                                    title="Označi kao važno"
+                                    @click="important(task.id)"
+                                >
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item border border-primary">
+            <h2 class="accordion-header">
+                <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#flush-collapseFour"
+                    aria-expanded="false"
+                    aria-controls="flush-collapseFour"
+                >
+                    Za dva ili više dana
+                </button>
+            </h2>
+            <div
+                id="flush-collapseFour"
+                class="accordion-collapse collapse"
+                data-bs-parent="#accordionFlushExample"
+            >
+                <div class="accordion-body">
+                    <div
+                        class="ms-5 me-5 mt-3"
+                        v-for="task in tasks"
+                        :key="task.id"
+                    >
+                        <div
+                            class="border"
+                            v-if="
+                                task.completed === 0 &&
+                                getDaysDifference(task.deadline) >= 2
+                            "
+                        >
+                            <div class="d-flex gap-2 mt-3 ms-3">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="flexRadioDefault"
+                                        :id="'checkbox-' + task.id"
+                                        :name="'task-' + task.id"
+                                        @change="deleteTask(task.id)"
+                                    />
+                                </div>
+                                <p>{{ task.title }}</p>
+
+                                <div>
+                                    <input
+                                        type="date"
+                                        class="task-date-input border-0"
+                                        v-model="task.deadlineDate"
+                                        @change="addDeadline(task.id)"
+                                    />
+
+                                    <p
+                                        v-if="
+                                            formatForComparison(
+                                                task.deadline
+                                            ) &&
+                                            formatForComparison(
+                                                task.deadline
+                                            ) >= formatForComparison(newDate)
                                         "
                                         @click="changeDeadline(task.id)"
                                         class="task-date"
@@ -281,7 +505,7 @@ import { RouterLink } from "vue-router";
                         Planirano
                     </RouterLink>
                     <a class="number-items ms-auto text-decoration-none">{{
-                        unTasks.length
+                         unTasks.length
                     }}</a>
                 </li>
             </div>
@@ -307,7 +531,7 @@ export default {
             newDate: null,
             importantTask: [],
             completedTasks: [],
-            unTasks: [],
+            unTasks:[],
         };
     },
 
@@ -321,6 +545,11 @@ export default {
     mounted() {
         this.currentTime();
         this.newDate = new Date(); // Uzmi trenutni datum
+        console.log("NewDate", this.formatForComparison(this.newDate));
+        console.log(
+            "Odabrani datum je ",
+            this.formatForComparison(this.tasks.deadline)
+        );
     },
     methods: {
         addTask() {
@@ -334,7 +563,6 @@ export default {
                 .post("/addTask", this.form)
                 .then((response) => {
                     this.getTasks();
-                    this.getUncompletedTask();
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -440,7 +668,6 @@ export default {
                     this.getTasks();
                     this.getImportant();
                     this.getCompletedTasks();
-                    this.getUncompletedTask();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -485,6 +712,7 @@ export default {
                 "hr-HR",
                 options
             ).format(new Date(date));
+
             // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
             const [day, month, year] = formattedDate.split(" ");
 
@@ -546,7 +774,6 @@ export default {
                     this.getTasks();
                     this.getImportant();
                     this.getCompletedTasks();
-                    this.getUncompletedTask();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -562,6 +789,25 @@ export default {
                 .catch((error) => {
                     console.log(error);
                 });
+        },
+
+        getTomorrowDate() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1); // Postavi datum na sutrašnji
+            tomorrow.setHours(0, 0, 0, 0); // Postavi vrijeme na 00:00:00 (bez vremena)
+            return tomorrow;
+        },
+        getDaysDifference(date) {
+            const today = new Date();
+            const deadline = new Date(date);
+
+            // Postavite oba datuma na početak dana (00:00:00)
+            today.setHours(0, 0, 0, 0);
+            deadline.setHours(0, 0, 0, 0);
+
+            const diffTime = deadline - today;
+            const diffDays = diffTime / (1000 * 3600 * 24); // Pretvori razliku u dane
+            return diffDays;
         },
 
         getUncompletedTask(){
@@ -641,6 +887,14 @@ li {
     font-size: 12px; /* Pomaknite datum u sredinu */
 }
 
+.task-date-input {
+    position: absolute; /* Fiksiranje datuma u sredinu */
+    left: 55%;
+    margin-top: 3px;
+    transform: translateX(-50%);
+    font-size: 12px; /* Pomaknite datum u sredinu */
+}
+
 .task-calendar {
     position: absolute;
     left: 53%;
@@ -658,5 +912,8 @@ li {
     font-size: 12px;
     padding: 5px;
     color: red;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
 }
 </style>

@@ -39,6 +39,7 @@ Route::post('addDeadline/{id}', [TaskController::class, 'addDeadline']);
 Route::post('deleteCompleted/{id}', [TaskController::class, 'deleteCompleted']);
 Route::get('/getCompletedImportantTasks', [TaskController::class, 'getCompletedImportantTasks']);
 Route::get('/getCompletedTasks', [TaskController::class, 'getCompletedTasks']);
+Route::get('/getUncompletedTask', [TaskController::class, 'getUncompletedTasks']);
 //Subtask routes
 Route::post('addSubtask', [SubtaskController::class, 'addSubtask']);
 Route::get('getSubtasks/{id}', [SubtaskController::class, 'getSubtasks']);

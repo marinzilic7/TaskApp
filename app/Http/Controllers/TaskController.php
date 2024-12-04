@@ -129,5 +129,12 @@ class TaskController extends Controller
         $user_id = Auth::id();
         $tasks = Task::where('user_id', $user_id)->where('completed', 1)->where('isImportant', 1)->get();
         return response()->json($tasks, 200);
-}
+    }
+
+    public function getUncompletedTasks(){
+
+        $user_id = Auth::id();
+        $tasks = Task::where('user_id', $user_id)->where('completed', 0)->get();
+        return response()->json($tasks, 200);
+    }
 }
