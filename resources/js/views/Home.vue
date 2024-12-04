@@ -62,13 +62,17 @@ import { RouterLink } from "vue-router";
     <br />
     <hr />
     <br />
+    <div
+        class="head-items ms-5 me-5 border pt-2 d-flex justify-content-between"
+    >
+        <p class="ms-5">Naslov</p>
+        <p>Krajnji rok</p>
+        <p class="me-3">Važnost</p>
+    </div>
+    <hr />
+
     <div class="ms-5 me-5 mt-3" v-for="task in tasks" :key="task.id">
-        <div class="head-items border pt-2 d-flex justify-content-between">
-            <p class="ms-5">Naslov</p>
-            <p>Krajnji rok</p>
-            <p class="me-3">Važnost</p>
-        </div>
-        <div class="border">
+        <div class="border" v-if="task.completed === 0">
             <div class="d-flex gap-2 mt-3 ms-3">
                 <div class="form-check">
                     <input
@@ -81,6 +85,7 @@ import { RouterLink } from "vue-router";
                     />
                 </div>
                 <p>{{ task.title }}</p>
+
                 <div v-if="task.deadline === null">
                     <input
                         type="date"
@@ -91,7 +96,22 @@ import { RouterLink } from "vue-router";
                 </div>
 
                 <div v-else>
-                    <p @click="changeDeadline(task.id)" class="task-date">
+                    <p
+                        v-if="
+                            formatForComparison(task.deadline) &&
+                            formatForComparison(task.deadline) >
+                                formatForComparison(newDate)
+                        "
+                        @click="changeDeadline(task.id)"
+                        class="task-date"
+                    >
+                        {{ formatDate(task.deadline) }}
+                    </p>
+                    <p
+                        v-else
+                        class="p-border task-date"
+                        @click="changeDeadline(task.id)"
+                    >
                         {{ formatDate(task.deadline) }}
                     </p>
                 </div>
@@ -109,6 +129,107 @@ import { RouterLink } from "vue-router";
             </div>
         </div>
     </div>
+    <hr />
+    <div
+        class="accordion accordion-flush ms-5 me-5 mt-5 border border-primary"
+        id="accordionFlushExample"
+    >
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#flush-collapseOne"
+                    aria-expanded="false"
+                    aria-controls="flush-collapseOne"
+                >
+                    <div class="d-flex align-items-center gap-2">
+                        Dovršeno
+                        <p class="text-primary fw-bold mt-3">{{ completedTasks.length }}</p>
+                    </div>
+
+                </button>
+            </h2>
+            <div
+                id="flush-collapseOne"
+                class="accordion-collapse collapse"
+                data-bs-parent="#accordionFlushExample"
+            >
+                <div class="accordion-body">
+                    <div
+                        class="ms-5 me-5 mt-3"
+                        v-for="task in tasks"
+                        :key="task.id"
+                    >
+                        <div class="border" v-if="task.completed === 1">
+                            <div class="d-flex gap-2 mt-3 ms-3">
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="flexRadioDefault"
+                                        :id="'checkbox-' + task.id"
+                                        :name="'task-' + task.id"
+                                        @change="deleteCompleted(task.id)"
+                                    />
+                                </div>
+                                <p class="text-decoration-line-through">
+                                    {{ task.title }}
+                                </p>
+
+                                <div v-if="task.deadline === null">
+                                    <input
+                                        type="date"
+                                        class="task-date border-0"
+                                        v-model="task.deadlineDate"
+                                        @change="addDeadline(task.id)"
+                                    />
+                                </div>
+
+                                <div v-else>
+                                    <p
+                                        v-if="
+                                            formatForComparison(
+                                                task.deadline
+                                            ) &&
+                                            formatForComparison(task.deadline) >
+                                                formatForComparison(newDate)
+                                        "
+                                        @click="changeDeadline(task.id)"
+                                        class="task-date"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                    <p
+                                        v-else
+                                        class="p-border task-date"
+                                        @click="changeDeadline(task.id)"
+                                    >
+                                        {{ formatDate(task.deadline) }}
+                                    </p>
+                                </div>
+
+                                <i
+                                    :class="[
+                                        'bi',
+                                        task.isImportant
+                                            ? 'bi-star-fill'
+                                            : 'bi-star',
+                                        'ms-auto me-3',
+                                    ]"
+                                    title="Označi kao važno"
+                                    @click="important(task.id)"
+                                >
+                                </i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div
         class="offcanvas offcanvas-start mt-5"
         tabindex="-1"
@@ -169,8 +290,9 @@ export default {
             subtaskTitle: "",
             date: null,
             time: null,
+            newDate: null,
             importantTask: [],
-
+            completedTasks: [],
         };
     },
 
@@ -178,9 +300,11 @@ export default {
         this.fetchCategories();
         this.getTasks();
         this.getImportant();
+        this.getCompletedTasks();
     },
     mounted() {
         this.currentTime();
+        this.newDate = new Date(); // Uzmi trenutni datum
     },
     methods: {
         addTask() {
@@ -298,6 +422,7 @@ export default {
                 .then((response) => {
                     this.getTasks();
                     this.getImportant();
+                    this.getCompletedTasks();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -342,7 +467,6 @@ export default {
                 "hr-HR",
                 options
             ).format(new Date(date));
-
             // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
             const [day, month, year] = formattedDate.split(" ");
 
@@ -350,10 +474,11 @@ export default {
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
 
-
         changeDeadline(taskId) {
-            console.log("Promjena roka za task ID:", taskId);
             const task = this.tasks.find((task) => task.id === taskId);
+            console.log("Promjena roka za task ID:", taskId);
+            console.log("Trenutni datum jeeeeeeee", this.newDate);
+            console.log("Odabrani datum jeee", task.deadline);
             if (task) {
                 task.deadline = null; // Resetiranje roka
                 console.log(task.deadline);
@@ -370,6 +495,53 @@ export default {
                 })
                 .catch((error) => {
                     console.error("Greška pri dodavanju roka:", error);
+                });
+        },
+        formatCurrentDate(date) {
+            const options = { day: "numeric", month: "long", year: "numeric" };
+            const formattedDate = new Intl.DateTimeFormat(
+                "hr-HR",
+                options
+            ).format(new Date(date));
+
+            // Podijeli datum na dijelove (npr. "4. prosinac 2024.")
+            const [day, month, year] = formattedDate.split(" ");
+
+            // Skrati naziv mjeseca na prva tri slova
+            return `${day} ${month.substring(0, 3)} ${year}`;
+        },
+        formatForComparison(date) {
+            const parsedDate = new Date(date);
+
+            // Provjera valjanosti datuma
+            if (isNaN(parsedDate)) {
+                console.error("Neispravan datum:", date);
+                return null; // Ako datum nije ispravan, vratiti null
+            }
+
+            return parsedDate; // Vraća Date objekt za usporedbu
+        },
+        deleteCompleted(taskId) {
+            axios
+                .post(`/deleteCompleted/${taskId}`)
+                .then((response) => {
+                    this.getTasks();
+                    this.getImportant();
+                    this.getCompletedTasks();
+                })
+                .catch((error) => {
+                    console.error("Greška pri brisanju zadatka:", error);
+                });
+        },
+        getCompletedTasks() {
+            axios
+                .get("/getCompletedTasks")
+                .then((response) => {
+                    this.completedTasks = response.data;
+                    console.log("Ovo su završeni taskovi", this.completedTasks);
+                })
+                .catch((error) => {
+                    console.log(error);
                 });
         },
     },
@@ -445,5 +617,12 @@ li {
 .head-items {
     font-size: 12px;
     color: grey;
+}
+
+.p-border {
+    border: 1px solid red;
+    font-size: 12px;
+    padding: 5px;
+    color: red;
 }
 </style>

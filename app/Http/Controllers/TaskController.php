@@ -42,7 +42,11 @@ class TaskController extends Controller
     public function deleteTask($id){
 
         $task = Task::find($id);
-        $task->delete();
+
+        $task->completed = true;
+
+
+        $task->save();
         return response()->json(['message' => 'Uspješno obrisan zadatak'], 200);
     }
 
@@ -65,8 +69,9 @@ class TaskController extends Controller
     public function deleteImportant(){
 
             $user_id = Auth::id();
-            $tasks = Task::where('user_id', $user_id)->where('isImportant', 1)->delete();
-            return response()->json(['message' => 'Uspješno obrisani važni zadaci'], 200);
+            $tasks = Task::where('user_id', $user_id)->where('isImportant', 1)->update(['completed' => true]);
+            return response()->json(['message' => 'Uspješno označeni važni zadaci kao dovršeni'], 200);
+
     }
 
     public function addImportant(Request $request){
@@ -104,4 +109,25 @@ class TaskController extends Controller
 
 
     }
+
+
+    public function deleteCompleted($id){
+        $task = Task::find($id);
+        $task->completed = false;
+        $task->save();
+        return response()->json(['message' => 'Uspješno obrisan zadatak'], 200);
+    }
+
+    public function getCompletedTasks(){
+
+            $user_id = Auth::id();
+            $tasks = Task::where('user_id', $user_id)->where('completed', 1)->get();
+            return response()->json($tasks, 200);
+    }
+    public function getCompletedImportantTasks(){
+
+        $user_id = Auth::id();
+        $tasks = Task::where('user_id', $user_id)->where('completed', 1)->where('isImportant', 1)->get();
+        return response()->json($tasks, 200);
+}
 }
