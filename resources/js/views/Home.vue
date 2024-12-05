@@ -2,6 +2,7 @@
 import axios from "axios";
 import Navbar from "../components/Navbar.vue";
 import { RouterLink } from "vue-router";
+import Sidebar from "../components/Sidebar.vue";
 </script>
 
 <template>
@@ -27,11 +28,7 @@ import { RouterLink } from "vue-router";
         <p class="date-text ms-4 text-muted">{{ date }}</p>
     </div>
     <div>
-        <form
-            class="ms-5 me-5 z-3"
-            action="
-        "
-        >
+        <form class="ms-5 me-5 z-3">
             <div class="input-group mb-3 mt-3">
                 <input
                     type="text"
@@ -39,21 +36,8 @@ import { RouterLink } from "vue-router";
                     placeholder="Dodaj novi zadatak"
                     v-model="form.title"
                 />
-                <select
-                    class="form-select"
-                    v-model="form.category_id"
-                    aria-label="Default select example"
-                >
-                    <option selected>Odaberi kategoriju</option>
-                    <option
-                        v-for="category in categories"
-                        :key="category.id"
-                        :value="category.id"
-                    >
-                        {{ category.name }}
-                    </option>
-                </select>
-                <button @click="addTask" class="btn add-button" type="button">
+
+                <button @click="addTask()" class="btn add-button" type="button">
                     <i class="bi bi-plus text-light add-btn"></i>
                 </button>
             </div>
@@ -132,7 +116,7 @@ import { RouterLink } from "vue-router";
     </div>
     <hr />
     <div
-        class="accordion accordion-flush ms-5 me-5 mt-5 border border-primary"
+        class="complete-accordion accordion accordion-flush ms-5 me-5 mt-5 "
         id="accordionFlushExample"
     >
         <div class="accordion-item">
@@ -147,7 +131,7 @@ import { RouterLink } from "vue-router";
                 >
                     <div class="d-flex align-items-center gap-2">
                         Dovršeno
-                        <p class="text-primary fw-bold mt-3">
+                        <p class="complete-text-accordion  mt-3">
                             {{ completedTasks.length }}
                         </p>
                     </div>
@@ -155,75 +139,93 @@ import { RouterLink } from "vue-router";
             </h2>
             <div
                 id="flush-collapseOne"
-                class="accordion-collapse collapse"
+                class="list-tasks accordion-collapse collapse"
                 data-bs-parent="#accordionFlushExample"
             >
                 <div class="accordion-body">
-                    <div
-                        class="ms-5 me-5 mt-3"
-                        v-for="task in tasks"
-                        :key="task.id"
-                    >
-                        <div class="border" v-if="task.completed === 1">
-                            <div class="d-flex gap-2 mt-3 ms-3">
-                                <div class="form-check">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="flexRadioDefault"
-                                        :id="'checkbox-' + task.id"
-                                        :name="'task-' + task.id"
-                                        @change="deleteCompleted(task.id)"
-                                    />
-                                </div>
-                                <p class="text-decoration-line-through">
-                                    {{ task.title }}
-                                </p>
+                    <div v-if="completedTasks.length > 0">
+                        <div v-for="task in tasks" :key="task.id">
+                            <div
+                                class="ms-5 me-5 mt-3"
+                                v-if="task.completed === 1"
+                            >
+                                <div class="border">
+                                    <div class="d-flex gap-2 mt-3 ms-3">
+                                        <div class="form-check">
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="flexRadioDefault"
+                                                :id="'checkbox-' + task.id"
+                                                :name="'task-' + task.id"
+                                                @change="
+                                                    deleteCompleted(task.id)
+                                                "
+                                            />
+                                        </div>
+                                        <p class="text-decoration-line-through">
+                                            {{ task.title }}
+                                        </p>
 
-                                <div v-if="task.deadline === null">
-                                    <input
-                                        type="date"
-                                        class="task-date border-0"
-                                        v-model="task.deadlineDate"
-                                        @change="addDeadline(task.id)"
-                                    />
-                                </div>
+                                        <div v-if="task.deadline === null">
+                                            <input
+                                                type="date"
+                                                class="task-date border-0"
+                                                v-model="task.deadlineDate"
+                                                @change="addDeadline(task.id)"
+                                            />
+                                        </div>
 
-                                <div v-else>
-                                    <p
-                                        v-if="
-                                            formatForComparison(
-                                                task.deadline
-                                            ) &&
-                                            formatForComparison(task.deadline) >
-                                                formatForComparison(newDate)
-                                        "
-                                        @click="changeDeadline(task.id)"
-                                        class="task-date"
-                                    >
-                                        {{ formatDate(task.deadline) }}
-                                    </p>
-                                    <p
-                                        v-else
-                                        class="p-border task-date"
-                                        @click="changeDeadline(task.id)"
-                                    >
-                                        {{ formatDate(task.deadline) }}
-                                    </p>
-                                </div>
+                                        <div v-else>
+                                            <p
+                                                v-if="
+                                                    formatForComparison(
+                                                        task.deadline
+                                                    ) &&
+                                                    formatForComparison(
+                                                        task.deadline
+                                                    ) >
+                                                        formatForComparison(
+                                                            newDate
+                                                        )
+                                                "
+                                                @click="changeDeadline(task.id)"
+                                                class="task-date"
+                                            >
+                                                {{ formatDate(task.deadline) }}
+                                            </p>
+                                            <p
+                                                v-else
+                                                class="p-border task-date"
+                                                @click="changeDeadline(task.id)"
+                                            >
+                                                {{ formatDate(task.deadline) }}
+                                            </p>
+                                        </div>
 
-                                <i
-                                    :class="[
-                                        'bi',
-                                        task.isImportant
-                                            ? 'bi-star-fill'
-                                            : 'bi-star',
-                                        'ms-auto me-3',
-                                    ]"
-                                    title="Označi kao važno"
-                                    @click="important(task.id)"
-                                >
-                                </i>
+                                        <i
+                                            :class="[
+                                                'bi',
+                                                task.isImportant
+                                                    ? 'bi-star-fill'
+                                                    : 'bi-star',
+                                                'ms-auto me-3',
+                                            ]"
+                                            title="Označi kao važno"
+                                            @click="important(task.id)"
+                                        >
+                                        </i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div>
+                            <div
+                                class="text-muted d-flex justify-content-center"
+                            >
+                                <p>Trenutno nemate završenih zadataka</p>
                             </div>
                         </div>
                     </div>
@@ -231,88 +233,7 @@ import { RouterLink } from "vue-router";
             </div>
         </div>
     </div>
-
-    <div
-        class="offcanvas offcanvas-start mt-5"
-        tabindex="-1"
-        id="offcanvasExample"
-        aria-labelledby="offcanvasExampleLabel"
-    >
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasExampleLabel">TaskApp</h5>
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-            ></button>
-        </div>
-        <div class="offcanvas-body">
-            <div>
-                <li class="list-items d-flex" @click="closeAccordation()">
-                    <i class="bi bi-brightness-high ms-2"></i>
-                    <RouterLink
-                        class="ms-2 text-decoration-none text-dark"
-                        to="/"
-                        >Moj dan</RouterLink
-                    >
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        tasks.length
-                    }}</a>
-                </li>
-                <li class="list-items d-flex mt-4">
-                    <i class="acc-star bi bi-star ms-2"></i>
-                    <RouterLink
-                        to="/important"
-                        class="ms-2 text-decoration-none text-dark"
-                    >
-                        Važno
-                    </RouterLink>
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        importantTask.length
-                    }}</a>
-                </li>
-                <li class="list-items d-flex mt-4">
-                    <i class="bi bi-calendar-check ms-2"></i>
-                    <RouterLink
-                        to="/planned"
-                        class="ms-2 text-decoration-none text-dark"
-                    >
-                        Planirano
-                    </RouterLink>
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        unTasks.length
-                    }}</a>
-                </li>
-                <li class="list-items d-flex mt-4">
-                    <i class="bi bi-person ms-2"></i>
-                    <RouterLink
-                        to="/"
-                        class="ms-2 text-decoration-none text-dark"
-                    >
-                        Timski rad
-                    </RouterLink>
-                    <a
-                        class="number-items ms-auto text-decoration-none"
-                        >{{
-                    }}</a>
-                </li>
-                <hr />
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-plus fs-3"></i>
-                    <input
-                        id="add_list"
-                        class="border-0"
-                        placeholder="Dodaj novi popis"
-                        required
-                    />
-                    <button class="add_list_btn btn">
-                        <i class="bi bi-check2"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <Sidebar :tasks="tasks" :importantTask="importantTask" :unTasks="unTasks" />
 </template>
 
 <script>
@@ -321,10 +242,8 @@ export default {
         return {
             form: {
                 title: "",
-                category_id: "",
             },
             tasks: [],
-            categories: [],
             subTasks: [],
             currentTaskId: null,
             subtaskTitle: "",
@@ -353,7 +272,6 @@ export default {
             const Data = {
                 title: this.form.title,
                 deadline: this.form.deadline,
-                category_id: this.form.category_id,
             };
             console.log("Category Id je", Data);
             axios
@@ -388,9 +306,6 @@ export default {
                 .then((response) => {
                     this.tasks = response.data;
                     console.log("Ovo su taskovi", this.tasks);
-                    this.tasks.forEach((task) => {
-                        this.getSubtasks(task.id); // Dohvaćamo podzadatke za svaki task
-                    });
                 })
                 .catch((error) => {
                     console.log(error);
@@ -473,24 +388,28 @@ export default {
                 });
         },
         important(id) {
-            axios.post(`/importantTask/${id}`).then((response) => {
-                this.getTasks();
-                this.getImportant();
-            });
-        },
-        closeAccordation() {
-            const offcanvasElement =
-                document.getElementById("offcanvasExample");
-
-            if (offcanvasElement) {
-                // Koristite Bootstrap Offcanvas API za zatvaranje
-                const offcanvasInstance =
-                    bootstrap.Offcanvas.getInstance(offcanvasElement);
-                if (offcanvasInstance) {
-                    offcanvasInstance.hide();
-                }
+            const task = this.tasks.find((task) => task.id === id);
+            if (task) {
+                task.isImportant = !task.isImportant; // Privremeno promijeni status
             }
+
+            // Pošalji zahtjev na server
+            axios
+                .post(`/importantTask/${id}`)
+                .then(() => {
+                    // Opcionalno, ponovno učitaj zadatke ako je potrebno
+                    this.getTasks();
+                    this.getImportant();
+                })
+                .catch((error) => {
+                    console.error("Greška pri označavanju zadatka:", error);
+                    // Vraćanje na prethodno stanje ako dođe do greške
+                    if (task) {
+                        task.isImportant = !task.isImportant;
+                    }
+                });
         },
+
         getImportant() {
             axios
                 .get("/getImportant")
@@ -604,6 +523,9 @@ export default {
                     console.log(error);
                 });
         },
+        zavrseniTaskovi() {
+            return this.tasks.some((task) => task.completed === 1);
+        },
     },
 };
 </script>
@@ -695,9 +617,18 @@ li {
     font-size: 14px;
 }
 
-.add_list_btn{
-    background-color:#175392 ;
-    color:#fff;
+.add_list_btn {
+    background-color: #175392;
+    color: #fff;
+}
 
+.complete-accordion{
+    border: 1px solid #175392;
+}
+
+.complete-text-accordion {
+    color: #175392;
+    font-weight: 700;
+    ;
 }
 </style>

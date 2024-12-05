@@ -15,7 +15,7 @@ class TaskController extends Controller
 
         $data = $request->validate([
             'title' => 'required',
-            'category_id' => 'required',
+
             'user_id' => '',
         ],
 
@@ -78,7 +78,6 @@ class TaskController extends Controller
 
         $data = $request->validate([
             'title' => 'required',
-            'category_id' => 'required',
             'user_id' => '',
 
         ],

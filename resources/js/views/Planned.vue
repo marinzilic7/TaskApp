@@ -2,6 +2,7 @@
 import axios from "axios";
 import Navbar from "../components/Navbar.vue";
 import { RouterLink } from "vue-router";
+import Sidebar from "../components/Sidebar.vue";
 </script>
 
 <template>
@@ -39,20 +40,7 @@ import { RouterLink } from "vue-router";
                     placeholder="Dodaj novi zadatak"
                     v-model="form.title"
                 />
-                <select
-                    class="form-select"
-                    v-model="form.category_id"
-                    aria-label="Default select example"
-                >
-                    <option selected>Odaberi kategoriju</option>
-                    <option
-                        v-for="category in categories"
-                        :key="category.id"
-                        :value="category.id"
-                    >
-                        {{ category.name }}
-                    </option>
-                </select>
+
                 <button @click="addTask" class="btn add-button" type="button">
                     <i class="bi bi-plus text-light add-btn"></i>
                 </button>
@@ -74,7 +62,7 @@ import { RouterLink } from "vue-router";
     <hr />
 
     <div class="accordion accordion-flush ms-5 me-5" id="accordionFlushExample">
-        <div class="accordion-item border border-primary">
+        <div class="accordion-item border border">
             <h2 class="accordion-header">
                 <button
                     class="accordion-button collapsed"
@@ -92,7 +80,23 @@ import { RouterLink } from "vue-router";
                 class="accordion-collapse collapse"
                 data-bs-parent="#accordionFlushExample"
             >
-                <div class="accordion-body">
+                <div
+                    class="accordion-body"
+                    v-if="
+                        !tasks.some(
+                            (task) =>
+                                task.completed === 0 &&
+                                formatForComparison(task.deadline) &&
+                                formatForComparison(task.deadline) <
+                                    formatForComparison(newDate)
+                        )
+                    "
+                >
+                    <p class="text-center text-muted ms-5">
+                        Nema zadataka za ranije
+                    </p>
+                </div>
+                <div v-else class="accordion-body">
                     <div
                         class="ms-5 me-5 mt-3"
                         v-for="task in tasks"
@@ -169,7 +173,7 @@ import { RouterLink } from "vue-router";
                 </div>
             </div>
         </div>
-        <div class="accordion-item border border-primary">
+        <div class="accordion-item border border">
             <h2 class="accordion-header">
                 <button
                     class="accordion-button collapsed"
@@ -187,7 +191,23 @@ import { RouterLink } from "vue-router";
                 class="accordion-collapse collapse"
                 data-bs-parent="#accordionFlushExample"
             >
-                <div class="accordion-body">
+                <div
+                    class="accordion-body"
+                    v-if="
+                        !tasks.some(
+                            (task) =>
+                                task.completed === 0 &&
+                                formatForComparison(task.deadline) &&
+                                formatForComparison(task.deadline).getTime() ===
+                                    formatForComparison(newDate).getTime()
+                        )
+                    "
+                >
+                    <p class="text-center text-muted ms-5">
+                        Nema zadataka za danas
+                    </p>
+                </div>
+                <div v-else class="accordion-body">
                     <div
                         class="ms-5 me-5 mt-3"
                         v-for="task in tasks"
@@ -264,7 +284,7 @@ import { RouterLink } from "vue-router";
                 </div>
             </div>
         </div>
-        <div class="accordion-item border border-primary">
+        <div class="accordion-item border">
             <h2 class="accordion-header">
                 <button
                     class="accordion-button collapsed"
@@ -282,7 +302,25 @@ import { RouterLink } from "vue-router";
                 class="accordion-collapse collapse"
                 data-bs-parent="#accordionFlushExample"
             >
-                <div class="accordion-body">
+                <div
+                    class="accordion-body"
+                    v-if="
+                        !tasks.some(
+                            (task) =>
+                                task.completed === 0 &&
+                                formatForComparison(task.deadline) &&
+                                formatForComparison(task.deadline).getTime() ===
+                                    formatForComparison(
+                                        getTomorrowDate()
+                                    ).getTime()
+                        )
+                    "
+                >
+                    <p class="text-center text-muted ms-5">
+                        Nema zadataka za sutra
+                    </p>
+                </div>
+                <div v-else class="accordion-body">
                     <div
                         class="ms-5 me-5 mt-3"
                         v-for="task in tasks"
@@ -361,7 +399,7 @@ import { RouterLink } from "vue-router";
                 </div>
             </div>
         </div>
-        <div class="accordion-item border border-primary">
+        <div class="accordion-item border border">
             <h2 class="accordion-header">
                 <button
                     class="accordion-button collapsed"
@@ -378,8 +416,21 @@ import { RouterLink } from "vue-router";
                 id="flush-collapseFour"
                 class="accordion-collapse collapse"
                 data-bs-parent="#accordionFlushExample"
-            >
-                <div class="accordion-body">
+            >    <div
+                    class="accordion-body"
+                    v-if="
+                        !tasks.some(
+                            (task) =>
+                            task.completed === 0 &&
+                            getDaysDifference(task.deadline) >= 2
+                        )
+                    "
+                >
+                    <p class="text-center text-muted ms-5">
+                        Nema zadataka za 2 ili više dana
+                    </p>
+                </div>
+                <div v-else class="accordion-body">
                     <div
                         class="ms-5 me-5 mt-3"
                         v-for="task in tasks"
@@ -456,74 +507,7 @@ import { RouterLink } from "vue-router";
         </div>
     </div>
 
-    <div
-        class="offcanvas offcanvas-start mt-5"
-        tabindex="-1"
-        id="offcanvasExample"
-        aria-labelledby="offcanvasExampleLabel"
-    >
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasExampleLabel">TaskApp</h5>
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="offcanvas"
-                aria-label="Close"
-            ></button>
-        </div>
-        <div class="offcanvas-body">
-            <div>
-                <li class="list-items d-flex" @click="closeAccordation()">
-                    <i class="bi bi-brightness-high ms-2"></i>
-                    <RouterLink
-                        class="ms-2 text-decoration-none text-dark"
-                        to="/"
-                        >Moj dan</RouterLink
-                    >
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        tasks.length
-                    }}</a>
-                </li>
-                <li class="list-items d-flex mt-4">
-                    <i class="acc-star bi bi-star ms-2"></i>
-                    <RouterLink
-                        to="/important"
-                        class="ms-2 text-decoration-none text-dark"
-                    >
-                        Važno
-                    </RouterLink>
-                    <a class="number-items ms-auto text-decoration-none">{{
-                        importantTask.length
-                    }}</a>
-                </li>
-                <li class="list-items d-flex mt-4">
-                    <i class="bi bi-calendar-check ms-2"></i>
-                    <RouterLink
-                        to="/planned"
-                        class="ms-2 text-decoration-none text-dark"
-                    >
-                        Planirano
-                    </RouterLink>
-                    <a class="number-items ms-auto text-decoration-none">{{
-                         unTasks.length
-                    }}</a>
-                </li>
-                <li class="list-items d-flex mt-4">
-                    <i class="bi bi-person ms-2"></i>
-                    <RouterLink
-                        to="/"
-                        class="ms-2 text-decoration-none text-dark"
-                    >
-                        Timski rad
-                    </RouterLink>
-                    <a class="number-items ms-auto text-decoration-none">{{
-
-                    }}</a>
-                </li>
-
-            </div>
-        </div>
-    </div>
+    <Sidebar :tasks="tasks" :importantTask="importantTask" :unTasks="unTasks" />
 </template>
 
 <script>
@@ -532,10 +516,8 @@ export default {
         return {
             form: {
                 title: "",
-                category_id: "",
             },
             tasks: [],
-            categories: [],
             subTasks: [],
             currentTaskId: null,
             subtaskTitle: "",
@@ -544,12 +526,11 @@ export default {
             newDate: null,
             importantTask: [],
             completedTasks: [],
-            unTasks:[],
+            unTasks: [],
         };
     },
 
     created() {
-        this.fetchCategories();
         this.getTasks();
         this.getImportant();
         this.getCompletedTasks();
@@ -583,18 +564,6 @@ export default {
                     } else {
                         alert("Failed to add task.");
                     }
-                });
-        },
-
-        fetchCategories() {
-            axios
-                .get("/getCategories")
-                .then((response) => {
-                    this.categories = response.data;
-                    this.loading = false;
-                })
-                .catch((error) => {
-                    console.log(error);
                 });
         },
         getTasks() {
@@ -823,7 +792,7 @@ export default {
             return diffDays;
         },
 
-        getUncompletedTask(){
+        getUncompletedTask() {
             axios
                 .get("/getUncompletedTask")
                 .then((response) => {
@@ -836,7 +805,7 @@ export default {
                 .catch((error) => {
                     console.log(error);
                 });
-        }
+        },
     },
 };
 </script>
@@ -928,5 +897,9 @@ li {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.complete-accordion {
+    border: 1px solid #175392;
 }
 </style>

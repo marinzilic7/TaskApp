@@ -81,21 +81,18 @@
                                 v-model="form.password"
                             />
                             <label for="floatingPassword">Lozinka</label>
-
                         </div>
                         <span
                             @click="tooglePassword()"
                             class="input-group-text"
-
                         >
                             <i v-if="passwordEye" class="bi bi-eye"></i>
                             <i v-else class="bi bi-eye-slash"></i>
                         </span>
-
                     </div>
                     <p v-if="errors.password" class="text-danger">
-                                {{ errors.password[0] }}
-                            </p>
+                        {{ errors.password[0] }}
+                    </p>
                     <button type="submit" class="register-button btn w-100">
                         Registracija
                     </button>
@@ -141,7 +138,6 @@ export default {
                     this.message = response.data.message;
                     this.successRegister = true;
                     setInterval(() => {
-                        this.$router.push("/login");
                         this.successRegister = false;
                     }, 2000);
                 })
@@ -176,6 +172,4 @@ export default {
 .hr-line {
     border: 1px solid #175392;
 }
-
-
 </style>
