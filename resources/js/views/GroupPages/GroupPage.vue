@@ -109,7 +109,164 @@ import Sidebar from "@/components/Sidebar.vue"; // Import komponente Sidebar
                 </div>
             </div>
         </div>
+        <hr />
+        <p class="text-center mt-3">
+            {{ Number.isInteger(progress) ? progress : progress.toFixed(2) }} %
+        </p>
+        <div class="progress ms-5 me-5 mt-3">
+            <div
+                class="progress-bar"
+                role="progressbar"
+                aria-valuenow="0"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                :style="{ width: progress + '%' }"
+            ></div>
+        </div>
+        <div
+            class="complete-accordion accordion accordion-flush ms-5 me-5 mt-5"
+            id="accordionFlushExample"
+        >
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#flush-collapseOne"
+                        aria-expanded="false"
+                        aria-controls="flush-collapseOne"
+                    >
+                        <div class="d-flex align-items-center gap-2">
+                            Dovršeno
+                            <p class="complete-text-accordion mt-3">
+                                {{ completedTasks.length }}
+                            </p>
+                        </div>
+                    </button>
+                </h2>
+                <div
+                    id="flush-collapseOne"
+                    class="list-tasks accordion-collapse collapse"
+                    data-bs-parent="#accordionFlushExample"
+                >
+                    <div class="accordion-body">
+                        <div v-if="completedTasks.length > 0">
+                            <div v-for="task in subtasks" :key="task.id">
+                                <div
+                                    class="ms-5 me-5 mt-3"
+                                    v-if="task.completed === 1"
+                                >
+                                    <div class="border">
+                                        <div class="d-flex gap-2 mt-3 ms-3">
+                                            <div class="form-check">
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    name="flexRadioDefault"
+                                                    :id="'checkbox-' + task.id"
+                                                    :name="'task-' + task.id"
+                                                    @change="
+                                                        deleteCompletedSubtask(
+                                                            task.id
+                                                        )
+                                                    "
+                                                />
+                                            </div>
+                                            <p
+                                                class="text-decoration-line-through"
+                                            >
+                                                {{ task.title }}
+                                            </p>
+
+                                            <div v-if="task.deadline === null">
+                                                <input
+                                                    type="date"
+                                                    class="task-date border-0"
+                                                    v-model="task.deadlineDate"
+                                                    @change="
+                                                        addDeadline(task.id)
+                                                    "
+                                                />
+                                            </div>
+
+                                            <div v-else>
+                                                <p
+                                                    v-if="
+                                                        formatForComparison(
+                                                            task.deadline
+                                                        ) &&
+                                                        formatForComparison(
+                                                            task.deadline
+                                                        ) >
+                                                            formatForComparison(
+                                                                newDate
+                                                            )
+                                                    "
+                                                    @click="
+                                                        changeDeadline(task.id)
+                                                    "
+                                                    class="task-date"
+                                                >
+                                                    {{
+                                                        formatDate(
+                                                            task.deadline
+                                                        )
+                                                    }}
+                                                </p>
+                                                <p
+                                                    v-else
+                                                    class="p-border task-date"
+                                                    @click="
+                                                        changeDeadline(task.id)
+                                                    "
+                                                >
+                                                    {{
+                                                        formatDate(
+                                                            task.deadline
+                                                        )
+                                                    }}
+                                                </p>
+                                            </div>
+
+                                            <i
+                                                :class="[
+                                                    'bi',
+                                                    task.isImportant
+                                                        ? 'bi-star-fill'
+                                                        : 'bi-star',
+                                                    'ms-auto me-3',
+                                                ]"
+                                                title="Označi kao važno"
+                                                @click="important(task.id)"
+                                            >
+                                            </i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else>
+                            <div>
+                                <div
+                                    class="text-muted d-flex justify-content-center"
+                                >
+                                    <p>Trenutno nemate završenih zadataka</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    <Sidebar
+        :tasks="subtasks"
+        :importantTask="importantTask"
+        :unTasks="completedTasks"
+        :group="group"
+        :subtasks="subtasks"
+    />
 </template>
 
 <script>
@@ -124,13 +281,28 @@ export default {
             subtasks: [],
             newDate: null,
             importantTask: [],
+            completedTasks: [],
+            progress: 0,
+            totalTasks: 0,
         };
     },
+
     created() {
         this.getGroupData(this.groupId);
         if (this.subtasks.length === 0) {
             this.getSubtasks(this.groupId); // Pozivanje samo ako još nisu dohvaćeni
         }
+
+        this.getCompletedSubtasks(this.groupId);
+        this.updateProgress();
+    },
+    watch: {
+        "$route.params.id": function (newId) {
+            this.groupId = newId; // Ažuriraj `groupId`
+            this.getGroupData(this.groupId);
+            this.getCompletedSubtasks();
+            this.getSubtasks(this.groupId); // Ponovo dohvatiti podatke za novi ID
+        },
     },
     mounted() {
         this.newDate = new Date();
@@ -167,9 +339,14 @@ export default {
                 .get(`/getSubtasks/${groupId}`)
                 .then((response) => {
                     this.subtasks = response.data;
+                    this.totalTasks = this.subtasks.length;
+                    console.log("Podzadaci", this.subtasks);
                 })
                 .catch((error) => {
                     console.log(error);
+                })
+                .finally(() => {
+                    this.updateProgress();
                 });
         },
 
@@ -178,6 +355,8 @@ export default {
                 .post(`/deleteSubtask/${id}`)
                 .then((response) => {
                     this.getSubtasks(this.groupId);
+                    this.getCompletedSubtasks(this.groupId);
+                    this.updateProgress();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju podzadatka:", error);
@@ -254,7 +433,6 @@ export default {
                 .then(() => {
                     // Opcionalno, ponovno učitaj zadatke ako je potrebno
                     this.getSubtasks(this.groupId);
-
                 })
                 .catch((error) => {
                     console.error("Greška pri označavanju zadatka:", error);
@@ -263,6 +441,49 @@ export default {
                         task.isImportant = !task.isImportant;
                     }
                 });
+        },
+
+        deleteCompletedSubtask(id) {
+            axios
+                .post(`/deleteCompletedSubtask/${id}`, {
+                    groupId: this.groupId, // Dodajte groupId u tijelo zahtjeva
+                })
+                .then((response) => {
+                    this.getSubtasks(this.groupId); // Promijenite taskId u groupId za poziv
+                    this.getCompletedSubtasks(this.groupId);
+                    this.updateProgress();
+                })
+                .catch((error) => {
+                    console.error("Greška pri brisanju zadatka:", error);
+                });
+        },
+
+        getCompletedSubtasks(id) {
+            axios
+                .get(`/getCompletedSubtasks/${id}`)
+                .then((response) => {
+                    this.completedTasks = response.data;
+                    console.log("Završeni zadaci", this.completedTasks);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        },
+
+        updateProgress() {
+            const completedTasksCount = this.subtasks.filter(
+                (task) => task.completed === true || task.completed === 1 // Provjerite vrijednost koju koristite za označavanje završenih zadataka
+            ).length;
+
+            console.log("Ukupan broj zadataka:", this.totalTasks);
+            console.log("Broj završenih zadataka:", completedTasksCount);
+
+            // Ako postoji barem jedan zadatak, izračunajte postotak
+            if (this.totalTasks > 0) {
+                this.progress = (completedTasksCount / this.totalTasks) * 100;
+            } else {
+                this.progress = 0;
+            }
         },
     },
 };

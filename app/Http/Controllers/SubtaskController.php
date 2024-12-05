@@ -54,4 +54,41 @@ class SubtaskController extends Controller
         $subtask->save();
         return response()->json(['message' => 'Uspješno promijenjen status podzadatka'], 200);
     }
+
+    public function getImportantSubtasks($id)
+    {
+        $subtasks = Subtask::where('group_id', $id)->where('isImportant', true)->get();
+        return response()->json($subtasks, 200);
+    }
+
+    public function getCompletedSubtasks($id)
+    {
+        $subtasks = Subtask::where('group_id', $id)->where('completed', true)->get();
+        return response()->json($subtasks, 200);
+    }
+
+
+    public function deleteCompletedSubtask(Request $request, $taskId)
+    {
+        // Validacija za groupId
+        $request->validate([
+            'groupId' => 'required|exists:groups,id', // Provjera da li grupa postoji
+        ]);
+
+        // Dohvat 'groupId' iz zahtjeva
+        $groupId = $request->groupId;
+
+        // Ažuriranje podzadatka tako da postavimo 'completed' na true
+        $subtask = Subtask::where('group_id', $groupId)
+            ->where('id', $taskId)
+            ->where('completed', true) // Provjera da je podzadatak još uvijek nije označen kao završen
+            ->first();
+
+        // Ako podzadatak postoji
+
+            $subtask->completed = false;// Postavljanje 'completed' na true
+            $subtask->save(); // Spremanje promjena u bazu
+
+
+    }
 }

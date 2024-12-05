@@ -90,7 +90,7 @@
                         @click="closeDropdown(index)"
                     >
                         <i class="bi bi-list fs-4"></i>
-                        <RouterLink :to="'/group/' + group.id" class="text-decoration-none text-dark">
+                        <RouterLink :to="'/group/' + group.id" class="text-decoration-none text-dark"  @click="closeAccordation">
                             {{ group.title }}
                         </RouterLink>
 
@@ -140,6 +140,10 @@ export default {
             type: Object,
             required: true,
         },
+        subtasks:{
+            type: Array,
+            required: true,
+        }
     },
 
     data() {
