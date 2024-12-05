@@ -8,6 +8,8 @@ import Categories from "../views/admin/Categories.vue";
 import Profile from "../views/Profile.vue";
 import Important from "../views/Important.vue";
 import Planned from "../views/Planned.vue";
+import GroupPage from "../views/GroupPages/GroupPage.vue";
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +58,12 @@ const router = createRouter({
             path: "/planned",
             name: "Planned",
             component: Planned,
+        },
+        {
+            path: '/group/:id', // Dinamički parametar za group.id
+            name: 'group',
+            component: GroupPage, // Komponenta koja će prikazati detalje grupe
+            props: true, // Ovo omogućava automatsko prosljeđivanje parametara u komponentu
         },
     ],
 });

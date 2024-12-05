@@ -118,7 +118,18 @@ import Sidebar from "../components/Sidebar.vue";
             </div>
         </div>
     </div>
+    <p class="text-center mt-3"> {{ Number.isInteger(progress) ? progress : progress.toFixed(2) }} %</p>
+    <div class="progress ms-5 me-5 mt-3">
 
+        <div
+            class="progress-bar"
+            role="progressbar"
+            aria-valuenow="0"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :style="{ width: progress + '%' }"
+        ></div>
+    </div>
     <div
         class="complete-accordion accordion accordion-flush ms-5 me-5 mt-5"
         id="accordionFlushExample"
@@ -150,7 +161,7 @@ import Sidebar from "../components/Sidebar.vue";
                     <div v-if="completedTasks.length > 0">
                         <div
                             class="ms-5 me-5 mt-3"
-                            v-for="task in tasks"
+                            v-for="task in completedTasks"
                             :key="task.id"
                         >
                             <div class="border">
@@ -252,14 +263,16 @@ export default {
             newDate: null,
             unTasks: [],
             importantTask: [],
+            progress: 0,
+            totalTasks: 0,
         };
     },
     created() {
-        this.fetchCategories();
         this.getImportant();
         this.getTasks();
         this.getCompletedImportantTasks();
         this.getUncompletedTask();
+        this.updateProgress();
     },
     mounted() {
         this.currentTime();
@@ -269,7 +282,7 @@ export default {
             const Data = {
                 title: this.form.title,
             };
-            console.log("Category Id je", Data);
+
 
             axios
                 .post("/addImportant", this.form)
@@ -277,6 +290,7 @@ export default {
                     this.getTasks();
                     this.getImportant();
                     this.getUncompletedTask();
+                    this.updateProgress();
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -287,29 +301,22 @@ export default {
                 });
         },
 
-        fetchCategories() {
-            axios
-                .get("/getCategories")
-                .then((response) => {
-                    this.categories = response.data;
-                    this.loading = false;
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        },
+
         getImportant() {
             axios
                 .get("/getImportant")
                 .then((response) => {
                     this.tasks = response.data;
                     console.log("Ovo su taskovi", this.tasks);
+                    this.totalTasks = this.tasks.length;
                     this.tasks.forEach((task) => {
                         this.getSubtasks(task.id); // Dohvaćamo podzadatke za svaki task
                     });
                 })
                 .catch((error) => {
                     console.log(error);
+                }).finally(() => {
+                    this.updateProgress();
                 });
         },
         setCurrentTaskId(taskId) {
@@ -390,6 +397,7 @@ export default {
                     this.getImportant();
                     this.getCompletedImportantTasks();
                     this.getUncompletedTask();
+                    this.updateProgress();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -403,6 +411,7 @@ export default {
 
             axios.post(`/importantTask/${id}`).then((response) => {
                 this.getImportant();
+
             });
         },
         closeAccordation() {
@@ -501,6 +510,7 @@ export default {
                     this.getImportant();
                     this.getCompletedImportantTasks();
                     this.getUncompletedTask();
+                    this.updateProgress();
                 })
                 .catch((error) => {
                     console.error("Greška pri brisanju zadatka:", error);
@@ -530,6 +540,21 @@ export default {
                 .catch((error) => {
                     console.log(error);
                 });
+        },
+        updateProgress() {
+            const completedTasksCount = this.tasks.filter(
+                (task) => task.completed === true || task.completed === 1 // Provjerite vrijednost koju koristite za označavanje završenih zadataka
+            ).length;
+
+            console.log("Ukupan broj zadataka:", this.totalTasks);
+            console.log("Broj završenih zadataka:", completedTasksCount);
+
+            // Ako postoji barem jedan zadatak, izračunajte postotak
+            if (this.totalTasks > 0) {
+                this.progress = (completedTasksCount / this.totalTasks) * 100;
+            } else {
+                this.progress = 0;
+            }
         },
     },
 };
@@ -611,4 +636,6 @@ li {
 .complete-accordion{
     border: 1px solid #175392;
 }
+
+
 </style>

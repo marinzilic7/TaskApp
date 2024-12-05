@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UsersController;
@@ -20,10 +21,7 @@ Route::post('/uploadProfile', [UsersController::class, 'uploadProfileImage']);
 Route::get('getUsers', [UsersController::class, 'getUsers']);
 Route::post('deleteUser/{id}', [UsersController::class, 'deleteUser']);
 Route::post('promoteUser/{id}', [UsersController::class, 'promoteUser']);
-Route::post('addCategory', [CategoriesController::class, 'addCategory']);
-Route::get('getCategories', [CategoriesController::class, 'getCategories']);
-Route::post('deleteCategory/{id}', [CategoriesController::class, 'deleteCategory']);
-Route::post('updateCategory/{id}', [CategoriesController::class, 'updateCategory']);
+
 
 
 //Task routes
@@ -40,9 +38,23 @@ Route::post('deleteCompleted/{id}', [TaskController::class, 'deleteCompleted']);
 Route::get('/getCompletedImportantTasks', [TaskController::class, 'getCompletedImportantTasks']);
 Route::get('/getCompletedTasks', [TaskController::class, 'getCompletedTasks']);
 Route::get('/getUncompletedTask', [TaskController::class, 'getUncompletedTasks']);
-//Subtask routes
+
+
+//Group tasks routes
+
+
+Route::post('addGroup', [GroupController::class, 'addGroup']);
+Route::get('getGroup', [GroupController::class, 'getGroup']);
+Route::post('deleteGroup/{id}', [GroupController::class, 'deleteGroup']);
+Route::get('getGroupData/{id}', [GroupController::class, 'getGroupData']);
+
+//Sub routes
 Route::post('addSubtask', [SubtaskController::class, 'addSubtask']);
 Route::get('getSubtasks/{id}', [SubtaskController::class, 'getSubtasks']);
+Route::post('deleteSubtask/{id}', [SubtaskController::class, 'deleteSubtask']);
+Route::post('addDeadlineSubTask/{id}', [SubtaskController::class, 'addDeadlineSubTask']);
+Route::post('importantSubtask/{id}', [SubtaskController::class, 'importantSubtask']);
+
 
 Route::get('/{any}', function () {
     return view('welcome');

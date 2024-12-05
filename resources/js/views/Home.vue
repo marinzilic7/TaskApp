@@ -114,7 +114,9 @@ import Sidebar from "../components/Sidebar.vue";
             </div>
         </div>
     </div>
+    <p class="text-center mt-3"> {{ Number.isInteger(progress) ? progress : progress.toFixed(2) }} %</p>
     <div class="progress ms-5 me-5 mt-3">
+
         <div
             class="progress-bar"
             role="progressbar"
@@ -512,6 +514,7 @@ export default {
                 .get("/getCompletedTasks")
                 .then((response) => {
                     this.completedTasks = response.data;
+                    this.getTasks
 
                 })
                 .catch((error) => {
@@ -654,5 +657,9 @@ li {
 .complete-text-accordion {
     color: #175392;
     font-weight: 700;
+}
+
+.progress-bar {
+    background-color: #175392;
 }
 </style>
