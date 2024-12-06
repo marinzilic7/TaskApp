@@ -266,6 +266,8 @@ import Sidebar from "@/components/Sidebar.vue"; // Import komponente Sidebar
         :unTasks="completedTasks"
         :group="group"
         :subtasks="subtasks"
+        ref="sidebar"
+
     />
 </template>
 
@@ -284,6 +286,7 @@ export default {
             completedTasks: [],
             progress: 0,
             totalTasks: 0,
+            singleGroup: {},
         };
     },
 
@@ -329,6 +332,11 @@ export default {
                 .post("/addSubtask", subtaskData)
                 .then((response) => {
                     this.getSubtasks(this.groupId);
+
+                    this.$refs.sidebar.getGrouptasks();
+
+
+                    this.subtaskTitle = "";
                 })
                 .catch((error) => {
                     console.error("Greška pri dodavanju podzadatka:", error);
@@ -485,6 +493,8 @@ export default {
                 this.progress = 0;
             }
         },
+
+
     },
 };
 </script>

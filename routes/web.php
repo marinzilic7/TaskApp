@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\NotifficationController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UsersController;
@@ -47,6 +48,8 @@ Route::post('addGroup', [GroupController::class, 'addGroup']);
 Route::get('getGroup', [GroupController::class, 'getGroup']);
 Route::post('deleteGroup/{id}', [GroupController::class, 'deleteGroup']);
 Route::get('getGroupData/{id}', [GroupController::class, 'getGroupData']);
+Route::get('getGroupsWithTaskCount', [GroupController::class, 'getGroupsWithTaskCount']);
+
 
 //Sub routes
 Route::post('addSubtask', [SubtaskController::class, 'addSubtask']);
@@ -58,6 +61,7 @@ Route::get('getImportantSubtasks', [SubtaskController::class, 'getImportantSubta
 Route::get('getCompletedSubtasks/{id}', [SubtaskController::class, 'getCompletedSubtasks']);
 Route::post('deleteCompletedSubtask/{id}', [SubtaskController::class, 'deleteCompletedSubtask']);
 
+Route::post('/send-reminder', [NotifficationController::class, 'sendReminder']);
 
 Route::get('/{any}', function () {
     return view('welcome');

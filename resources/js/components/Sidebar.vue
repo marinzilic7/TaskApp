@@ -1,4 +1,5 @@
 <template>
+
     <div
         class="offcanvas offcanvas-start mt-5"
         tabindex="-1"
@@ -84,16 +85,23 @@
                 <div>
                     <!-- Grupa -->
                     <div
+                        v-if="groups.length > 0"
                         v-for="(group, index) in groups"
                         class="d-flex align-items-center gap-3 mt-3"
                         @contextmenu.prevent="openDropdown($event, index)"
                         @click="closeDropdown(index)"
                     >
                         <i class="bi bi-list fs-4"></i>
-                        <RouterLink :to="'/group/' + group.id" class="text-decoration-none text-dark"  @click="closeAccordation">
+                        <RouterLink
+                            :to="'/group/' + group.id"
+                            class="text-decoration-none text-dark"
+                            @click="closeAccordation"
+                        >
                             {{ group.title }}
                         </RouterLink>
-
+                        <span class="badge bg-primary ms-auto">{{
+                            group.subtasks_count
+                        }}</span>
                         <!-- Dropdown meni za brisanje -->
                         <div
                             v-if="group.showDropdown"
@@ -107,6 +115,11 @@
                                 Obriši listu
                             </button>
                         </div>
+                    </div>
+                    <div v-else>
+                        <p class="no-group text-muted text-center">
+                            Trenutno nema nijednog dodanog popisa
+                        </p>
                     </div>
                     <!-- Ostatak sadržaja -->
                     <hr />
@@ -140,10 +153,10 @@ export default {
             type: Object,
             required: true,
         },
-        subtasks:{
+        subtasks: {
             type: Array,
             required: true,
-        }
+        },
     },
 
     data() {
@@ -153,6 +166,7 @@ export default {
             },
             groups: [],
             activeDropdownIndex: null,
+            subtasks: [],
         };
     },
     mounted() {
@@ -164,6 +178,8 @@ export default {
     },
     created() {
         this.getGroup();
+        this.getGrouptasks();
+
     },
     methods: {
         closeAccordation() {
@@ -196,6 +212,7 @@ export default {
                     console.log(response);
                     this.getGroup();
                     this.form.title = "";
+                    this.getGrouptasks();
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
@@ -210,6 +227,7 @@ export default {
                 .get("/getGroup")
                 .then((response) => {
                     this.groups = response.data;
+
                     console.log(response);
                 })
                 .catch((error) => {
@@ -253,12 +271,28 @@ export default {
                 .then(() => {
                     this.groups = this.groups.filter(
                         (group) => group.id !== groupId
-                    ); // Ukloni obrisanu grupu iz popisa
+                    );
+                    this.getGrouptasks(); // Ukloni obrisanu grupu iz popisa
                 })
                 .catch((error) => {
                     alert("Failed to delete group.");
                 });
         },
+
+        getGrouptasks() {
+            axios
+                .get("/getGroupsWithTaskCount")
+                .then((response) => {
+                    this.groups = response.data;
+                    console.log("OVO JE BROJ", this.countSubtasks);
+                })
+                .catch((error) => {
+                    console.error("Failed to fetch groups:", error);
+                    alert("Došlo je do pogreške prilikom dohvaćanja grupa.");
+                });
+        },
+
+
     },
 };
 </script>
@@ -294,5 +328,9 @@ export default {
 
 .list-items:hover {
     background-color: #f8f9fa;
+}
+
+.no-group {
+    font-size: 13px;
 }
 </style>

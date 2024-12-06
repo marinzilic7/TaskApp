@@ -10,4 +10,9 @@ class Group extends Model
     use HasFactory;
 
     protected $fillable = ['title',  'user_id', 'isImportant', 'deadline', 'completed'];
+
+    public function subtasks()
+    {
+        return $this->hasMany(Subtask::class, 'group_id');
+    }
 }

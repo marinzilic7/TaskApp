@@ -29,15 +29,29 @@ class GroupController extends Controller
         return response()->json($groups, 200);
     }
 
-    public function deleteGroup($id){
+    public function deleteGroup($id)
+    {
         $group = Group::find($id);
         $group->delete();
         return response()->json(['message' => 'Uspješno obrisana grupa'], 200);
     }
 
-    public function getGroupData($id){
+    public function getGroupData($id)
+    {
         $group = Group::find($id);
         return response()->json($group, 200);
 
     }
+
+    public function getGroupsWithTaskCount()
+    {
+        try {
+            $groups = Group::withCount('subtasks')->get(); // Dohvati grupe s brojem zadataka
+            return response()->json($groups);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch groups'], 500);
+        }
+    }
+
+
 }

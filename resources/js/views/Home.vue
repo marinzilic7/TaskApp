@@ -23,6 +23,16 @@ import Sidebar from "../components/Sidebar.vue";
             <i class="bi bi-list"></i>
         </button>
         <h5 class="mt-2">Moj dan</h5>
+
+        <i
+            class="bell-icon bi bi-bell ms-2 ms-auto me-5"
+            @click="openDateTimePicker"
+            title="Postavi podsjetnik"
+        ></i>
+        <div class="ms-3 me-3" v-if="showDateTimePicker">
+            <input type="datetime-local" v-model="dateTime" />
+            <button class="bell-btn" @click="setReminder">Postavi podsjetnik</button>
+        </div>
     </div>
     <div class="ms-5">
         <p class="date-text ms-4 text-muted">{{ date }}</p>
@@ -114,9 +124,10 @@ import Sidebar from "../components/Sidebar.vue";
             </div>
         </div>
     </div>
-    <p class="text-center mt-3"> {{ Number.isInteger(progress) ? progress : progress.toFixed(2) }} %</p>
+    <p class="text-center mt-3">
+        {{ Number.isInteger(progress) ? progress : progress.toFixed(2) }} %
+    </p>
     <div class="progress ms-5 me-5 mt-3">
-
         <div
             class="progress-bar"
             role="progressbar"
@@ -267,6 +278,8 @@ export default {
             unTasks: [],
             progress: 0,
             totalTasks: 0,
+            showDateTimePicker: false,
+            dateTime: null,
         };
     },
 
@@ -275,11 +288,13 @@ export default {
         this.getImportant();
         this.getCompletedTasks();
         this.getUncompletedTask();
-
     },
     mounted() {
         this.currentTime();
         this.newDate = new Date(); // Uzmi trenutni datum
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
     },
     methods: {
         addTask() {
@@ -314,7 +329,8 @@ export default {
                 })
                 .catch((error) => {
                     console.log(error);
-                }).finally(() => {
+                })
+                .finally(() => {
                     this.updateProgress();
                 });
         },
@@ -489,7 +505,6 @@ export default {
             parsedDate.setHours(0, 0, 0, 0);
             // Provjera valjanosti datuma
             if (isNaN(parsedDate)) {
-
                 return null; // Ako datum nije ispravan, vratiti null
             }
 
@@ -514,8 +529,7 @@ export default {
                 .get("/getCompletedTasks")
                 .then((response) => {
                     this.completedTasks = response.data;
-                    this.getTasks
-
+                    this.getTasks;
                 })
                 .catch((error) => {
                     console.log(error);
@@ -553,6 +567,51 @@ export default {
             } else {
                 this.progress = 0;
             }
+        },
+        sendNotification() {
+            if (Notification.permission === "granted") {
+                // Ako je dozvola odobrena, šaljemo obavijest
+                new Notification("Kliknuli ste na ikonu!");
+            } else if (Notification.permission !== "denied") {
+                // Ako korisnik još nije donio odluku, pitamo ga
+                Notification.requestPermission().then((permission) => {
+                    if (permission === "granted") {
+                        new Notification("Kliknuli ste na ikonu!");
+                    }
+                });
+            }
+        },
+        sendNotification() {
+            // Provjera da li korisnik dopušta obavijesti
+            if (Notification.permission === "granted") {
+                new Notification("Vrijeme je za zadatke (Moj dan)", {
+                    body: "Ne zaboravite na svoje zadatke!",
+                    icon: "/icon.png",
+                });
+            } else {
+                alert("Molimo omogućite obavijesti.");
+            }
+        },
+        // ----
+        setReminder() {
+            if (!this.dateTime) return;
+
+            const selectedTime = new Date(this.dateTime).getTime();
+            const currentTime = new Date().getTime();
+
+            // Provjera da li je odabrano vrijeme u budućnosti
+
+            const delay = selectedTime - currentTime;
+
+            // Postavljanje vremenskog odgode za obavijest
+            setTimeout(() => {
+                this.sendNotification();
+            }, delay);
+            this.showDateTimePicker = false;
+        },
+
+        openDateTimePicker() {
+            this.showDateTimePicker = !this.showDateTimePicker;
         },
     },
 };
@@ -661,5 +720,21 @@ li {
 
 .progress-bar {
     background-color: #175392;
+}
+
+.bell-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #175392;
+}
+
+.bell-btn{
+    background-color: #175392;
+    border:none;
+    outline:none;
+    color: white;
+    padding:5px;
+    margin-left:10px;
+    font-size:14px;
 }
 </style>
