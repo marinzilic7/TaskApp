@@ -16,6 +16,7 @@ Route::post('loginUser', [UsersController::class, 'loginUser']);
 Route::get('isLogged', [UsersController::class, 'isLogged']);
 Route::post('logout', [UsersController::class, 'logout']);
 Route::post('/uploadProfile', [UsersController::class, 'uploadProfileImage']);
+Route::post('changePassword', [UsersController::class, 'changePassword']);
 
 //Admin routes
 

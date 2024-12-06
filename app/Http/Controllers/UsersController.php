@@ -140,5 +140,26 @@ public function promoteUser($id){
     return response()->json(['message' => 'Korisnik uspješno promoviran']);
 }
 
+public function changePassword(Request $request)
+{
+    $data = $request->validate([
+        'currentPassword' => 'required|min:5',  // Validacija za staru lozinku
+        'newPassword' => 'required|min:5',      // Validacija za novu lozinku
+    ]);
+
+    $user = Auth::user();
+
+    // Provjeri je li stara lozinka točna
+    if (!password_verify($data['currentPassword'], $user->password)) {
+        return response()->json(['error' => 'Pogrešna stara lozinka'], 400);
+    }
+
+    // Ažuriraj lozinku
+    $user->password = bcrypt($data['newPassword']); // Sva lozinka se mijenja s novom
+    $user->save();
+
+    return response()->json(['message' => 'Lozinka je uspješno promijenjena']);
+}
+
 
 }
