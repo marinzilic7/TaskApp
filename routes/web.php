@@ -4,6 +4,7 @@
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\NotifficationController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectTaskController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TeamController;
@@ -87,13 +88,18 @@ Route::get('/getProject/{id}',  [ProjectController::class, 'getProject']);
 //Team members
 
 Route::post('addMember/{id}', [TeamMemberController::class, 'addMember']);
-
+Route::get('getMemberGroup/{id}', [TeamMemberController::class, 'getMemberGroup']);
 
 //Reminder routes
 Route::post('/send-reminder', [NotifficationController::class, 'sendReminder']);
 
 
+//TaskProject
 
+Route::post('addTaskToProject/{id}', [ProjectTaskController::class, 'addTaskToProject']);
+Route::get('getTasksByProject/{id}', [ProjectTaskController::class, 'getTasksByProject']);
+Route::post('deleteProjectTasks/{id}', [ProjectTaskController::class, 'deleteProjectTasks']);
+Route::post('assignTaskToMember', [ProjectTaskController::class, 'assignTaskToMember']);
 
 Route::get('/{any}', function () {
     return view('welcome');

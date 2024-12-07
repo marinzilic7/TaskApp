@@ -97,14 +97,23 @@ import Navbar from "@/components/Navbar.vue";
             >
                 <div class="accordion-body">
                     <div class="input-group mb-3 mt-3">
-                        <input
-                            type="text"
-                            class="form-control"
-                            placeholder="Dodaj zadatak za projekt"
-                        />
-                        <button class="btn btn-primary btn-sm add-button">
-                            <i class="bi bi-plus text-light add-btn"></i>
-                        </button>
+                        <form
+                            @submit.prevent="addTaskToProject(project.id)"
+                            class="ms-5 me-5 d-flex z-3"
+                        >
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Dodaj zadatak za projekt"
+                                v-model="taskproject.name"
+                            />
+                            <button
+                                type="sumbit"
+                                class="btn btn-primary btn-sm add-button ms-2"
+                            >
+                                <i class="bi bi-plus text-light add-btn"></i>
+                            </button>
+                        </form>
                     </div>
                     <br />
                     <hr />
@@ -115,18 +124,95 @@ import Navbar from "@/components/Navbar.vue";
                         <thead>
                             <tr>
                                 <th scope="col">ID zadatka</th>
-                                <th scope="col">Ime zadataka</th>
-                                <th scope="col">Dodjeljeno</th>
+                                <th scope="col">Ime zadatka</th>
+                                <th scope="col">
+                                    Dodjeljeno
+                                    <i
+                                        class="bi bi-person-plus"
+                                        @click="toggleMemberSelect"
+                                        style="
+                                            cursor: pointer;
+                                            margin-left: 10px;
+                                        "
+                                        title="Dodijeli zadatak"
+                                    ></i>
+                                    <select
+                                        v-if="showSelect"
+                                        v-model="odabraniClan"
+                                        class="form-select mt-3"
+                                        aria-label="Odaberi člana teama"
+                                    >
+                                        <option selected>
+                                            Odaberi člana teama
+                                        </option>
+                                        <option
+                                            v-for="member in memberGroup"
+                                            :key="member.id"
+                                            :value="member.user_id"
+                                        >
+                                            {{
+                                                member.user.firstName +
+                                                " " +
+                                                member.user.lastName
+                                            }}
+                                        </option>
+                                    </select>
+                                    <button
+                                        v-if="odabraniClan"
+                                        class="btn btn-primary mt-3"
+                                        @click="assignTaskToMember"
+                                    >
+                                        Dodijeli zadatak
+                                    </button>
+                                </th>
                                 <th scope="col">Rok zadatka</th>
                                 <th scope="col">Datum kreiranja</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th scope="row">1</th>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
+                            <tr
+                                v-for="task in project.tasks || []"
+                                :key="task.id"
+                            >
+                                <th scope="row">{{ task.id }}</th>
+                                <td
+                                    class="d-flex align-items-center"
+                                    v-if="task.completed === 0"
+                                >
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="flexRadioDefault"
+                                            :id="'checkbox-' + task.id"
+                                            :name="'task-' + task.id"
+                                            @change="
+                                                deleteProjectTasks(task.id)
+                                            "
+                                        />
+                                    </div>
+                                    {{ task.name }}
+                                </td>
+                                <td class="d-flex" v-else>
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="flexRadioDefault"
+                                            :id="'checkbox-' + task.id"
+                                            :name="'task-' + task.id"
+                                            disabled
+                                        />
+                                    </div>
+                                    <p
+                                        class="text-decoration-line-through text-danger"
+                                    >
+                                        {{ task.name }}
+                                    </p>
+                                </td>
+                                <td>{{ task.member_id || "N/A" }}</td>
+                                <td>{{ task.deadline || "N/A" }}</td>
+                                <td>{{ formatDate(task.created_at) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -152,12 +238,19 @@ export default {
             members: [],
             selectedMembers: [],
             projects: [],
+            taskproject: {
+                name: "",
+            },
+            showSelect: false,
+            memberGroup: [],
+            odabraniClan: null,
         };
     },
     created() {
         // Poziv metode za dohvat tima nakon što je komponenta kreirana
         this.getTeamData(this.teamId);
         this.getProject(this.teamId);
+        this.getMemberGroup(this.teamId);
     },
     methods: {
         async getTeamData(id) {
@@ -219,11 +312,118 @@ export default {
                 .then((response) => {
                     this.projects = response.data;
 
-                    console.log("Ovo su projekti", this.projects);
+                    // Iteracija kroz projekte da dohvatimo zadatke
+                    this.projects = this.projects.map((project) => {
+                        axios
+                            .get(`/getTasksByProject/${project.id}`)
+                            .then((taskResponse) => {
+                                // Dodavanje tasks polja projektu
+                                project.tasks = taskResponse.data;
+                            })
+                            .catch((error) => {
+                                console.error(
+                                    "Error getting tasks for project:",
+                                    error
+                                );
+                            });
+                        return project;
+                    });
+
+                    console.log("Ovo su projekti s taskovima", this.projects);
                 })
                 .catch((error) => {
-                    console.error("Error getting  project:", error);
+                    console.error("Error getting projects:", error);
                 });
+        },
+
+        addTaskToProject(id) {
+            const Data = {
+                name: this.taskproject.name,
+                team_id: this.teamId,
+            };
+            axios
+                .post(`/addTaskToProject/${id}`, Data)
+                .then((response) => {
+                    console.log(response.data);
+                    this.taskproject.name = "";
+                    axios
+                        .get(`/getTasksByProject/${id}`)
+                        .then((taskResponse) => {
+                            const project = this.projects.find(
+                                (p) => p.id === id
+                            );
+                            if (project) {
+                                project.tasks = taskResponse.data; // Ažuriramo tasks polje
+                            }
+                        })
+                        .catch((error) => {
+                            console.error(
+                                "Error refreshing tasks for project:",
+                                error
+                            );
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error adding task:", error);
+                });
+        },
+        formatDate(date) {
+            const options = { day: "numeric", month: "long", year: "numeric" };
+            const formattedDate = new Intl.DateTimeFormat(
+                "hr-HR",
+                options
+            ).format(new Date(date));
+            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
+            const [day, month, year] = formattedDate.split(" ");
+
+            // Uzmi prva tri slova mjeseca i spoji dijelove
+            return `${day} ${month.substring(0, 3)} ${year}`;
+        },
+        deleteProjectTasks(id) {
+            axios
+                .post(`/deleteProjectTasks/${id}`)
+                .then((response) => {
+                    console.log(response.data);
+                    this.getProject(this.teamId);
+                })
+                .catch((error) => {
+                    console.error("Error deleting task:", error);
+                });
+        },
+        toggleMemberSelect() {
+            this.showSelect = !this.showSelect;
+        },
+
+        getMemberGroup(id) {
+            axios
+                .get(`/getMemberGroup/${id}`)
+                .then((response) => {
+                    this.memberGroup = response.data;
+                    console.log("Ovo su članovi tima", this.memberGroup);
+                })
+                .catch((error) => {
+                    console.error("Error getting members:", error);
+                });
+        },
+        assignTaskToMember() {
+            if (this.odabraniClan) {
+                const Data = {
+                    taskId: this.taskId, // ID zadatka koji želite ažurirati
+                    member_id : this.odabraniClan,
+                };
+                axios
+                    .post(`/assignTaskToMember/${this.taskId}`, Data) // ispravka: zarez uklonjen
+                    .then((response) => {
+                        console.log(
+                            "Timski član uspješno dodijeljen zadatku",
+                            response
+                        );
+                        // Ovdje možete dodati logiku za ažuriranje UI-a nakon uspješnog ažuriranja
+                    })
+                    .catch((error) => {
+                        console.error("Error assigning task:", error);
+                    });
+            }
         },
     },
 };

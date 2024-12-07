@@ -20,4 +20,14 @@ class TeamMemberController extends Controller
 
         return response()->json(['message' => 'Member added successfully']);
     }
+
+    public function getMemberGroup($teamId) {
+        // Dohvati članove tima zajedno s podacima o korisnicima (npr. ime)
+        $members = TeamMember::where('team_id', $teamId)
+            ->with('user')  // Pretpostavljamo da imate relaciju 'user' između TeamMember i User modela
+            ->get();
+
+        // Vraćamo podatke o članovima tima s korisničkim informacijama
+        return response()->json($members);
+    }
 }
