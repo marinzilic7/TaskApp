@@ -9,7 +9,8 @@ import Profile from "../views/Profile.vue";
 import Important from "../views/Important.vue";
 import Planned from "../views/Planned.vue";
 import GroupPage from "../views/GroupPages/GroupPage.vue";
-
+import Team from "../views/Team.vue";
+import TeamPage from "../views/TeamPages/TeamPage.vue";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,11 +61,23 @@ const router = createRouter({
             component: Planned,
         },
         {
-            path: '/group/:id', // Dinamički parametar za group.id
+            path: '/group/:id',
             name: 'group',
-            component: GroupPage, // Komponenta koja će prikazati detalje grupe
-            props: true, // Ovo omogućava automatsko prosljeđivanje parametara u komponentu
+            component: GroupPage,
+            props: true,
         },
+
+        {
+            path: "/team",
+            name: "Team",
+            component: Team,
+        },
+        {
+            path: '/team/:id',
+            name: 'team',
+            component: TeamPage,
+            props: true,
+        }
     ],
 });
 
@@ -75,16 +88,6 @@ router.afterEach(() => {
     }
 });
 // // Navigacijski stražar za provjeru autentifikacije
-// router.beforeEach((to, from, next) => {
-//     const isAuthenticated = !!localStorage.getItem('token'); // Provjerite da li je korisnik autentificiran
 
-//     if (to.name === 'admin' && !isAuthenticated) {
-//         // Ako korisnik pokušava pristupiti admin ruti i nije autentificiran, preusmjerite ga na login rutu
-//         next({ name: 'login' });
-//     } else {
-//         // U suprotnom, dopustite navigaciju
-//         next();
-//     }
-// });
 
 export default router;

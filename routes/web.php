@@ -5,6 +5,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\NotifficationController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,18 @@ Route::get('getImportantSubtasks', [SubtaskController::class, 'getImportantSubta
 Route::get('getCompletedSubtasks/{id}', [SubtaskController::class, 'getCompletedSubtasks']);
 Route::post('deleteCompletedSubtask/{id}', [SubtaskController::class, 'deleteCompletedSubtask']);
 
+
+//Team routes
+
+Route::post('addTeam', [TeamController::class, 'addTeam']);
+Route::get('getTeams', [TeamController::class, 'getTeams']);
+Route::post('updateTeam/{id}', [TeamController::class, 'updateTeam']);
+Route::post('deleteTeam/{id}', [TeamController::class, 'deleteTeam']);
+Route::get('getTeamData/{id}', [TeamController::class, 'getTeamData']);
+
+
+
+//Reminder routes
 Route::post('/send-reminder', [NotifficationController::class, 'sendReminder']);
 
 Route::get('/{any}', function () {

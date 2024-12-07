@@ -15,6 +15,10 @@ class User extends Model implements Authenticatable
     protected $fillable = ['firstName', 'lastName', 'email', 'password', 'role', 'image', 'last_online', 'is_online'];
 
 
+    public function teams()
+    {
+        return $this->hasMany(Team::class);
+    }
 
 
 }

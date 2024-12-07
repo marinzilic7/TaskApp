@@ -55,7 +55,7 @@
                 <li class="list-items d-flex mt-4">
                     <i class="bi bi-person ms-2"></i>
                     <RouterLink
-                        to="/"
+                        to="/team"
                         class="ms-2 text-decoration-none text-dark"
                     >
                         Timski rad
@@ -155,6 +155,14 @@ export default {
         },
         subtasks: {
             type: Array,
+            required: true,
+        },
+        teams:{
+            type: Array,
+            required: true,
+        },
+        updatedTeam: {
+            type: Object,
             required: true,
         },
     },
