@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\CategoriesController;
+
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\NotifficationController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SubtaskController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TeamMemberController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +20,8 @@ Route::get('isLogged', [UsersController::class, 'isLogged']);
 Route::post('logout', [UsersController::class, 'logout']);
 Route::post('/uploadProfile', [UsersController::class, 'uploadProfileImage']);
 Route::post('changePassword', [UsersController::class, 'changePassword']);
+Route::get('/search-members', [UsersController::class, 'searchMembers']);
+
 
 //Admin routes
 
@@ -74,8 +78,22 @@ Route::get('getTeamData/{id}', [TeamController::class, 'getTeamData']);
 
 
 
+//Project routes
+
+
+Route::post('/addProject/{id}', [ProjectController::class, 'addProject']);
+Route::get('/getProject/{id}',  [ProjectController::class, 'getProject']);
+
+//Team members
+
+Route::post('addMember/{id}', [TeamMemberController::class, 'addMember']);
+
+
 //Reminder routes
 Route::post('/send-reminder', [NotifficationController::class, 'sendReminder']);
+
+
+
 
 Route::get('/{any}', function () {
     return view('welcome');

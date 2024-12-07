@@ -161,5 +161,16 @@ public function changePassword(Request $request)
     return response()->json(['message' => 'Lozinka je uspješno promijenjena']);
 }
 
+public function searchMembers(Request $request)
+{
+    // Pretraga članova prema imenu i prezimenu
+    $query = $request->get('query');
+    $members = User::where('firstName', 'like', "%{$query}%")
+                   ->orWhere('lastName', 'like', "%{$query}%")
+                   ->get(['id', 'firstName', 'lastName']); // Vraćamo samo id, ime i prezime
+
+    return response()->json($members);
+}
+
 
 }
