@@ -33,9 +33,12 @@ class ProjectTaskController extends Controller
     }
 
     public function getTasksByProject($projectId) {
-        $tasks = ProjectTask::where('project_id', $projectId)->get();
-        return response()->json($tasks);
+        // Dohvati zadatke za projekt s povezanim korisnicima (user)
+        $tasks = ProjectTask::where('project_id', $projectId)
+                            ->with('user') // Uključi povezane korisnike
+                            ->get();
 
+        return response()->json($tasks); // Vraća zadatke u JSON formatu
     }
 
     public function deleteProjectTasks($taskId) {
@@ -48,16 +51,36 @@ class ProjectTaskController extends Controller
 
     }
 
-    public function assignTaskToMember(Request $request, $taskId) {
+    public function assignTaskToMember(Request $request, $projectId) {
+        // Validiraj podatke
         $data = $request->validate([
             'member_id' => 'required',
+            'task_id' => 'required',
         ]);
 
-        $task = ProjectTask::find($taskId);
+        // Pronađi prvi zadatak povezan s projektom koji još nije dodijeljen članu
+        $task = ProjectTask::where('project_id', $projectId)
+                        ->where('id', $data['task_id'])  // Dodano uvjet za task_id
+                        ->first();
+
+
+        // Dodijeli člana zadatku
         $task->member_id = $data['member_id'];
         $task->save();
 
         return response()->json(['message' => 'Task assigned successfully']);
+    }
+
+    public function addTaskProjectDeadline($id, Request $request){
+        $data = $request->validate([
+            'deadline' => 'required',
+        ]);
+
+        $task = ProjectTask::find($id);
+        $task->deadline = $data['deadline'];
+        $task->save();
+
+        return response()->json(['message' => 'Task deadline added successfully']);
     }
 
 

@@ -97,23 +97,42 @@ import Navbar from "@/components/Navbar.vue";
             >
                 <div class="accordion-body">
                     <div class="input-group mb-3 mt-3">
-                        <form
-                            @submit.prevent="addTaskToProject(project.id)"
-                            class="ms-5 me-5 d-flex z-3"
-                        >
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Dodaj zadatak za projekt"
-                                v-model="taskproject.name"
-                            />
-                            <button
-                                type="sumbit"
-                                class="btn btn-primary btn-sm add-button ms-2"
-                            >
-                                <i class="bi bi-plus text-light add-btn"></i>
-                            </button>
-                        </form>
+                        <div class="d-flex justify-content-between col-12">
+                            <div>
+                                <form
+                                    @submit.prevent="
+                                        addTaskToProject(project.id)
+                                    "
+                                    class="ms-5 me-5 d-flex z-3"
+                                >
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        placeholder="Dodaj zadatak za projekt"
+                                        v-model="taskproject.name"
+                                    />
+                                    <button
+                                        type="sumbit"
+                                        class="btn btn-primary btn-sm add-button ms-2"
+                                    >
+                                        <i
+                                            class="bi bi-plus text-light add-btn"
+                                        ></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <i
+                                    class="bi bi-person-plus fs-3 text-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal"
+                                    data-bs-whatever="@mdo"
+                                    style="cursor: pointer; margin-left: 10px"
+                                    title="Dodijeli zadatak"
+                                ></i>
+                            </div>
+                        </div>
                     </div>
                     <br />
                     <hr />
@@ -125,46 +144,7 @@ import Navbar from "@/components/Navbar.vue";
                             <tr>
                                 <th scope="col">ID zadatka</th>
                                 <th scope="col">Ime zadatka</th>
-                                <th scope="col">
-                                    Dodjeljeno
-                                    <i
-                                        class="bi bi-person-plus"
-                                        @click="toggleMemberSelect"
-                                        style="
-                                            cursor: pointer;
-                                            margin-left: 10px;
-                                        "
-                                        title="Dodijeli zadatak"
-                                    ></i>
-                                    <select
-                                        v-if="showSelect"
-                                        v-model="odabraniClan"
-                                        class="form-select mt-3"
-                                        aria-label="Odaberi člana teama"
-                                    >
-                                        <option selected>
-                                            Odaberi člana teama
-                                        </option>
-                                        <option
-                                            v-for="member in memberGroup"
-                                            :key="member.id"
-                                            :value="member.user_id"
-                                        >
-                                            {{
-                                                member.user.firstName +
-                                                " " +
-                                                member.user.lastName
-                                            }}
-                                        </option>
-                                    </select>
-                                    <button
-                                        v-if="odabraniClan"
-                                        class="btn btn-primary mt-3"
-                                        @click="assignTaskToMember"
-                                    >
-                                        Dodijeli zadatak
-                                    </button>
-                                </th>
+                                <th scope="col">Dodjeljeno</th>
                                 <th scope="col">Rok zadatka</th>
                                 <th scope="col">Datum kreiranja</th>
                             </tr>
@@ -210,12 +190,160 @@ import Navbar from "@/components/Navbar.vue";
                                         {{ task.name }}
                                     </p>
                                 </td>
-                                <td>{{ task.member_id || "N/A" }}</td>
-                                <td>{{ task.deadline || "N/A" }}</td>
+                                <td>
+                                    <p v-if="task.user === null">
+                                        Nije određeno
+                                    </p>
+                                    <p v-else>
+                                        {{
+                                            task.user.firstName +
+                                                " " +
+                                                task.user.lastName || "N/A"
+                                        }}
+                                    </p>
+                                </td>
+                                <td>
+                                    <div v-if="task.deadline === null">
+                                        <input
+                                            type="date"
+                                            class="task-date border-0"
+                                            v-model="deadlineDates[task.id]"
+                                            @change="addDeadline(task.id)"
+                                        />
+                                        Nije određeno
+                                    </div>
+
+                                    <div v-else>
+                                        <input
+                                            v-if="showInput"
+                                            type="date"
+                                            class="task-date border-0"
+                                            v-model="deadlineDates[task.id]"
+                                            @change="addDeadline(task.id)"
+                                        />
+                                        <p @click="showInputFunction(task.id)">
+                                            {{ formatDate(task.deadline) }}
+                                        </p>
+                                    </div>
+                                </td>
+
                                 <td>{{ formatDate(task.created_at) }}</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal za dodjeljivanje zadatka -->
+
+    <div
+        class="modal fade"
+        id="exampleModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">
+                        Dodjeli zadatak
+                    </h1>
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label"
+                                >Odaberi clana iz tima:</label
+                            >
+                            <select
+                                v-model="odabraniClan"
+                                class="form-select mt-3"
+                                aria-label="Odaberi člana teama"
+                            >
+                                <option selected>Odaberi člana teama</option>
+                                <option
+                                    v-for="member in memberGroup"
+                                    :key="member.id"
+                                    :value="member.user_id"
+                                >
+                                    {{
+                                        member.user.firstName +
+                                        " " +
+                                        member.user.lastName
+                                    }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label"
+                                >Odaberi projekt:</label
+                            >
+                            <select
+                                v-model="chosenProject"
+                                @change="getTaskByProject(chosenProject)"
+                                class="form-select mt-3"
+                                aria-label="Odaberi člana teama"
+                            >
+                                <option selected>
+                                    Odaberi projekt za clana
+                                </option>
+                                <option
+                                    v-for="project in projects"
+                                    :key="project.id"
+                                    :value="project.id"
+                                >
+                                    {{ project.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label"
+                                >Odaberi zadatak iz projekta:</label
+                            >
+                            <select
+                                v-model="chosenTask"
+                                class="form-select mt-3"
+                                aria-label="Odaberi člana teama"
+                            >
+                                <option selected>
+                                    Odaberi zadatak za clana
+                                </option>
+                                <option
+                                    v-for="task in tasks"
+                                    :key="task.id"
+                                    :value="task.id"
+                                >
+                                    {{ task.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary btn-sm"
+                        data-bs-dismiss="modal"
+                    >
+                        Close
+                    </button>
+
+                    <button
+                        v-if="odabraniClan"
+                        class="btn btn-primary btn-sm"
+                        @click="assignTaskToMember"
+                    >
+                        Dodijeli zadatak
+                    </button>
                 </div>
             </div>
         </div>
@@ -244,6 +372,11 @@ export default {
             showSelect: false,
             memberGroup: [],
             odabraniClan: null,
+            chosenTask: null,
+            chosenProject: null,
+            tasks: [],
+            deadlineDates: {},
+            showInput: false,
         };
     },
     created() {
@@ -251,6 +384,7 @@ export default {
         this.getTeamData(this.teamId);
         this.getProject(this.teamId);
         this.getMemberGroup(this.teamId);
+        this.getTaskByProject(this.projectId);
     },
     methods: {
         async getTeamData(id) {
@@ -300,6 +434,7 @@ export default {
                 .post(`/addMember/${this.teamId}`, Data)
                 .then((response) => {
                     console.log(response.data);
+                    this.getMemberGroup(this.teamId);
                 })
                 .catch((error) => {
                     console.error("Error adding project:", error);
@@ -407,23 +542,82 @@ export default {
         },
         assignTaskToMember() {
             if (this.odabraniClan) {
+                console.log("Member ID ", this.odabraniClan);
+                console.log("Odabrani task", this.chosenTask)
                 const Data = {
-                    taskId: this.taskId, // ID zadatka koji želite ažurirati
-                    member_id : this.odabraniClan,
+                    projectId: this.chosenProject, // ID zadatka koji želite ažurirati
+                    member_id: this.odabraniClan,
+                    task_id: this.chosenTask,
                 };
+
                 axios
-                    .post(`/assignTaskToMember/${this.taskId}`, Data) // ispravka: zarez uklonjen
+                    .post(`/assignTaskToMember/${this.chosenProject}`, Data) // ispravka: zarez uklonjen
                     .then((response) => {
                         console.log(
                             "Timski član uspješno dodijeljen zadatku",
                             response
                         );
-                        // Ovdje možete dodati logiku za ažuriranje UI-a nakon uspješnog ažuriranja
+                        this.dohvatiTaskove(this.chosenProject);
+                        const modalElement =
+                            document.getElementById("exampleModal");
+                        const modalInstance =
+                            bootstrap.Modal.getInstance(modalElement);
+                        modalInstance.hide();
                     })
                     .catch((error) => {
                         console.error("Error assigning task:", error);
                     });
             }
+        },
+        getTaskByProject(id) {
+            axios
+                .get(`/getTasksByProject/${id}`)
+                .then((response) => {
+                    const project = this.projects.find((p) => p.id === id);
+                    if (project) {
+                        this.tasks = response.data; // Ažuriramo tasks polje
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error refreshing tasks for project:", error);
+                });
+        },
+
+        dohvatiTaskove(id) {
+            this.projects = this.projects.map((project) => {
+                axios
+                    .get(`/getTasksByProject/${project.id}`)
+                    .then((taskResponse) => {
+                        // Dodavanje tasks polja projektu
+                        project.tasks = taskResponse.data;
+                    })
+                    .catch((error) => {
+                        console.error(
+                            "Error getting tasks for project:",
+                            error
+                        );
+                    });
+                return project;
+            });
+        },
+
+        addDeadline(id) {
+            const Data = {
+                deadline: this.deadlineDates[id], // Pošaljemo datum specifičan za zadatak
+            };
+            this.showInput = false;
+            axios
+                .post(`/addTaskProjectDeadline/${id}`, Data)
+                .then((response) => {
+                    console.log(response.data);
+                    this.getProject(this.teamId);
+                })
+                .catch((error) => {
+                    console.error("Error adding deadline:", error);
+                });
+        },
+        showInputFunction(id) {
+            this.showInput = !this.showInput;
         },
     },
 };

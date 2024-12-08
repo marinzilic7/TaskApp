@@ -19,8 +19,7 @@ class ProjectTask extends Model
         'user_id',
     ];
 
-    public function team_members()
-    {
-        return $this->belongsTo(TeamMember::class, 'member_id');
+    public function user() {
+        return $this->belongsTo(User::class, 'member_id'); // 'member_id' je strani ključ
     }
 }

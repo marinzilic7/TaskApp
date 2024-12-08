@@ -21,4 +21,8 @@ class User extends Model implements Authenticatable
     }
 
 
+    public function user() {
+        return $this->belongsTo(User::class, 'member_id', 'id');
+    }
+
 }

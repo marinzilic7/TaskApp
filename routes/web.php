@@ -99,7 +99,10 @@ Route::post('/send-reminder', [NotifficationController::class, 'sendReminder']);
 Route::post('addTaskToProject/{id}', [ProjectTaskController::class, 'addTaskToProject']);
 Route::get('getTasksByProject/{id}', [ProjectTaskController::class, 'getTasksByProject']);
 Route::post('deleteProjectTasks/{id}', [ProjectTaskController::class, 'deleteProjectTasks']);
-Route::post('assignTaskToMember', [ProjectTaskController::class, 'assignTaskToMember']);
+Route::post('assignTaskToMember/{id}', [ProjectTaskController::class, 'assignTaskToMember']);
+Route::post('addTaskProjectDeadline/{id}', [ProjectTaskController::class, 'addTaskProjectDeadline']);
+
+
 
 Route::get('/{any}', function () {
     return view('welcome');
