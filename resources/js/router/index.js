@@ -11,6 +11,8 @@ import Planned from "../views/Planned.vue";
 import GroupPage from "../views/GroupPages/GroupPage.vue";
 import Team from "../views/Team.vue";
 import TeamPage from "../views/TeamPages/TeamPage.vue";
+import Mytask from "../views/Mytask.vue";
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -77,7 +79,13 @@ const router = createRouter({
             name: 'team',
             component: TeamPage,
             props: true,
+        },
+        {
+            path: "/mytasks",
+            name: "Mytask",
+            component: Mytask,
         }
+
     ],
 });
 

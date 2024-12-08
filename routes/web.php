@@ -103,6 +103,8 @@ Route::post('assignTaskToMember/{id}', [ProjectTaskController::class, 'assignTas
 Route::post('addTaskProjectDeadline/{id}', [ProjectTaskController::class, 'addTaskProjectDeadline']);
 
 
+Route::get('getYourTeam', [TeamMemberController::class, 'getYourTeam']);
+
 
 Route::get('/{any}', function () {
     return view('welcome');

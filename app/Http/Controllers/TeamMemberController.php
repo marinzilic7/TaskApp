@@ -30,4 +30,12 @@ class TeamMemberController extends Controller
         // Vraćamo podatke o članovima tima s korisničkim informacijama
         return response()->json($members);
     }
+
+    public function getYourTeam(){
+        $user = auth()->user();
+        $teams = TeamMember::where('user_id', $user->id)
+            ->with('team') // Uključuje podatke o timu
+            ->get();
+        return response()->json($teams);
+    }
 }

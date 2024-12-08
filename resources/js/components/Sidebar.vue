@@ -65,6 +65,19 @@
                         >{{
                     }}</a>
                 </li>
+                <li class="list-items d-flex mt-4">
+                    <i class="bi bi-person ms-2"></i>
+                    <RouterLink
+                        to="/mytasks"
+                        class="ms-2 text-decoration-none text-dark"
+                    >
+                        Dodjeljeno meni
+                    </RouterLink>
+                    <a
+                        class="number-items ms-auto text-decoration-none"
+                        >{{
+                    }}</a>
+                </li>
                 <hr />
                 <div class="d-flex align-items-center">
                     <i class="bi bi-plus fs-3"></i>
