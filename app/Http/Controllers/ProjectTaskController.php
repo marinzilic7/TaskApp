@@ -34,12 +34,12 @@ class ProjectTaskController extends Controller
     }
 
     public function getTasksByProject($projectId) {
-        // Dohvati zadatke za projekt s povezanim korisnicima (user)
+
         $tasks = ProjectTask::where('project_id', $projectId)
-                            ->with('user') // Uključi povezane korisnike
+                            ->with('user')
                             ->get();
 
-        return response()->json($tasks); // Vraća zadatke u JSON formatu
+        return response()->json($tasks);
     }
 
     public function deleteProjectTasks($taskId) {
@@ -53,19 +53,19 @@ class ProjectTaskController extends Controller
     }
 
     public function assignTaskToMember(Request $request, $projectId) {
-        // Validiraj podatke
+
         $data = $request->validate([
             'member_id' => 'required',
             'task_id' => 'required',
         ]);
 
-        // Pronađi prvi zadatak povezan s projektom koji još nije dodijeljen članu
+
         $task = ProjectTask::where('project_id', $projectId)
-                        ->where('id', $data['task_id'])  // Dodano uvjet za task_id
+                        ->where('id', $data['task_id'])
                         ->first();
 
 
-        // Dodijeli člana zadatku
+
         $task->member_id = $data['member_id'];
         $task->save();
 
@@ -85,16 +85,16 @@ class ProjectTaskController extends Controller
     }
 
     public function getTasksByProjectMember($projectId) {
-        // Dohvati trenutno prijavljenog korisnika
+
         $userId = Auth::id();
 
         // Dohvati zadatke dodijeljene korisniku
         $tasks = ProjectTask::where('project_id', $projectId)
                             ->where('member_id', $userId)
-                            ->with('user') // Filtriraj prema ID-u prijavljenog korisnika
+                            ->with('user')
                             ->get();
 
-        return response()->json($tasks); // Vraća zadatke u JSON formatu
+        return response()->json($tasks);
     }
 
 

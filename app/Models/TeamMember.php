@@ -16,6 +16,6 @@ class TeamMember extends Model
     }
 
     public function user() {
-        return $this->belongsTo(User::class, 'user_id');  // Povezuje se s User modelom putem user_id
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

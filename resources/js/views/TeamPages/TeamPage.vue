@@ -1,5 +1,6 @@
 <script setup>
 import Navbar from "@/components/Navbar.vue";
+import Sidebar from "../../components/Sidebar.vue";
 </script>
 
 <template>
@@ -51,18 +52,12 @@ import Navbar from "@/components/Navbar.vue";
                 <ul>
                     <li v-for="member in members" :key="member.id">
                         {{ member.firstName }} {{ member.lastName }}
-                        <button @click="addMemberToTeam(member.id)">
+                        <button
+                            class="btn btn-sm btn-primary"
+                            @click="addMemberToTeam(member.id)"
+                        >
                             Dodaj u tim
                         </button>
-                    </li>
-                </ul>
-            </div>
-
-            <div v-if="selectedMembers.length">
-                <h3>Odabrani članovi:</h3>
-                <ul>
-                    <li v-for="member in selectedMembers" :key="member.id">
-                        {{ member.first_name }} {{ member.last_name }}
                     </li>
                 </ul>
             </div>
@@ -150,7 +145,13 @@ import Navbar from "@/components/Navbar.vue";
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="project.tasks.length === 0">
+                                <td colspan="6" class="text-center">
+                                    Trenutno nije dodan nijedan zadatak
+                                </td>
+                            </tr>
                             <tr
+                                v-else
                                 v-for="task in project.tasks || []"
                                 :key="task.id"
                             >
@@ -348,6 +349,14 @@ import Navbar from "@/components/Navbar.vue";
             </div>
         </div>
     </div>
+
+    <Sidebar
+        :tasks="tasks"
+        :importantTask="importantTask"
+        :unTasks="unTasks"
+        :teams="teams"
+        :updatedTeam="updatedTeam"
+    />
 </template>
 
 <script>
@@ -356,8 +365,8 @@ import axios from "axios";
 export default {
     data() {
         return {
-            teamId: this.$route.params.id, // Dohvaćanje ID-a iz URL-a
-            team: {}, // Objekt za pohranu podataka tima
+            teamId: this.$route.params.id,
+            team: {},
             project: {
                 name: "",
                 description: "",
@@ -377,10 +386,21 @@ export default {
             tasks: [],
             deadlineDates: {},
             showInput: false,
+            pokaziClanove: false,
+
+            //
+
+            teams: [],
+            updatedTeam: {
+                id: null,
+                name: "",
+            },
+            tasks: [],
+            importantTask: [],
+            unTasks: [],
         };
     },
     created() {
-        // Poziv metode za dohvat tima nakon što je komponenta kreirana
         this.getTeamData(this.teamId);
         this.getProject(this.teamId);
         this.getMemberGroup(this.teamId);
@@ -389,11 +409,11 @@ export default {
     methods: {
         async getTeamData(id) {
             try {
-                const response = await axios.get(`/getTeamData/${id}`); // API endpoint za dohvat podataka o grupi
-                this.team = response.data; // Pohranjivanje podataka u 'team' objekt
-                console.log("Ovo su podaci grupe", this.team); // Ispis podataka u konzoli
+                const response = await axios.get(`/getTeamData/${id}`);
+                this.team = response.data;
+                console.log("Ovo su podaci grupe", this.team);
             } catch (error) {
-                console.error("Error fetching group data:", error); // Obrada pogreške
+                console.error("Error fetching group data:", error);
             }
         },
         addProject() {
@@ -416,10 +436,10 @@ export default {
             try {
                 const response = await axios.get("/search-members", {
                     params: {
-                        query: this.searchQuery, // Prosljeđujemo upisani tekst pretrage
+                        query: this.searchQuery,
                     },
                 });
-                this.members = response.data; // Spremamo rezultate pretrage
+                this.members = response.data;
             } catch (error) {
                 console.error("Greška pri pretrazi članova", error);
             }
@@ -435,6 +455,7 @@ export default {
                 .then((response) => {
                     console.log(response.data);
                     this.getMemberGroup(this.teamId);
+                    this.pokaziClanove = true;
                 })
                 .catch((error) => {
                     console.error("Error adding project:", error);
@@ -447,12 +468,10 @@ export default {
                 .then((response) => {
                     this.projects = response.data;
 
-                    // Iteracija kroz projekte da dohvatimo zadatke
                     this.projects = this.projects.map((project) => {
                         axios
                             .get(`/getTasksByProject/${project.id}`)
                             .then((taskResponse) => {
-                                // Dodavanje tasks polja projektu
                                 project.tasks = taskResponse.data;
                             })
                             .catch((error) => {
@@ -488,7 +507,7 @@ export default {
                                 (p) => p.id === id
                             );
                             if (project) {
-                                project.tasks = taskResponse.data; // Ažuriramo tasks polje
+                                project.tasks = taskResponse.data;
                             }
                         })
                         .catch((error) => {
@@ -508,10 +527,9 @@ export default {
                 "hr-HR",
                 options
             ).format(new Date(date));
-            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
+
             const [day, month, year] = formattedDate.split(" ");
 
-            // Uzmi prva tri slova mjeseca i spoji dijelove
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
         deleteProjectTasks(id) {
@@ -543,15 +561,15 @@ export default {
         assignTaskToMember() {
             if (this.odabraniClan) {
                 console.log("Member ID ", this.odabraniClan);
-                console.log("Odabrani task", this.chosenTask)
+                console.log("Odabrani task", this.chosenTask);
                 const Data = {
-                    projectId: this.chosenProject, // ID zadatka koji želite ažurirati
+                    projectId: this.chosenProject,
                     member_id: this.odabraniClan,
                     task_id: this.chosenTask,
                 };
 
                 axios
-                    .post(`/assignTaskToMember/${this.chosenProject}`, Data) // ispravka: zarez uklonjen
+                    .post(`/assignTaskToMember/${this.chosenProject}`, Data)
                     .then((response) => {
                         console.log(
                             "Timski član uspješno dodijeljen zadatku",
@@ -575,7 +593,7 @@ export default {
                 .then((response) => {
                     const project = this.projects.find((p) => p.id === id);
                     if (project) {
-                        this.tasks = response.data; // Ažuriramo tasks polje
+                        this.tasks = response.data;
                     }
                 })
                 .catch((error) => {
@@ -588,7 +606,6 @@ export default {
                 axios
                     .get(`/getTasksByProject/${project.id}`)
                     .then((taskResponse) => {
-                        // Dodavanje tasks polja projektu
                         project.tasks = taskResponse.data;
                     })
                     .catch((error) => {
@@ -603,7 +620,7 @@ export default {
 
         addDeadline(id) {
             const Data = {
-                deadline: this.deadlineDates[id], // Pošaljemo datum specifičan za zadatak
+                deadline: this.deadlineDates[id],
             };
             this.showInput = false;
             axios

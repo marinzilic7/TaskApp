@@ -53,7 +53,7 @@
                     }}</a>
                 </li>
                 <li class="list-items d-flex mt-4">
-                    <i class="bi bi-person ms-2"></i>
+                    <i class="bi bi-people ms-2"></i>
                     <RouterLink
                         to="/team"
                         class="ms-2 text-decoration-none text-dark"
@@ -192,10 +192,10 @@ export default {
     },
     mounted() {
         this.fixBodyOverflow();
-        document.addEventListener("click", this.closeDropdownOnClickOutside); // Dodajemo event listener za klik izvan dropdown menija
+        document.addEventListener("click", this.closeDropdownOnClickOutside);
     },
     beforeDestroy() {
-        document.removeEventListener("click", this.closeDropdownOnClickOutside); // Uklanjamo event listener
+        document.removeEventListener("click", this.closeDropdownOnClickOutside);
     },
     created() {
         this.getGroup();
@@ -208,7 +208,7 @@ export default {
                 document.getElementById("offcanvasExample");
 
             if (offcanvasElement) {
-                // Koristite Bootstrap Offcanvas API za zatvaranje
+
                 const offcanvasInstance =
                     bootstrap.Offcanvas.getInstance(offcanvasElement);
                 if (offcanvasInstance) {
@@ -221,7 +221,7 @@ export default {
             const offcanvasElement =
                 document.querySelector("#offcanvasExample");
             offcanvasElement?.addEventListener("hidden.bs.offcanvas", () => {
-                document.body.style.overflow = ""; // Vratite normalno ponašanje tijela
+                document.body.style.overflow = "";
             });
         },
         // -----------------------------------------------------------------------
@@ -261,12 +261,12 @@ export default {
         },
         openDropdown(event, index) {
             this.groups.forEach((group, i) => {
-                group.showDropdown = i === index; // Prikazuje dropdown samo za kliknutu grupu
+                group.showDropdown = i === index;
             });
             this.activeDropdownIndex = index;
         },
         closeDropdownOnClickOutside(event) {
-            // Zatvori dropdown ako korisnik klikne izvan dropdown menija
+
             if (
                 this.activeDropdownIndex !== null &&
                 !event.target.closest(".dropdown-menu") &&
@@ -278,14 +278,14 @@ export default {
         },
 
         closeDropdown(index) {
-            // Zatvara dropdown kada se klikne na istu grupu
+
             if (this.activeDropdownIndex === index) {
                 this.groups[index].showDropdown = false;
-                this.activeDropdownIndex = null; // Postavi aktivni dropdown na null
+                this.activeDropdownIndex = null;
             }
         },
 
-        // Funkcija za brisanje grupe
+
         deleteGroup(groupId) {
             axios
                 .post(`/deleteGroup/${groupId}`)
@@ -293,7 +293,7 @@ export default {
                     this.groups = this.groups.filter(
                         (group) => group.id !== groupId
                     );
-                    this.getGrouptasks(); // Ukloni obrisanu grupu iz popisa
+                    this.getGrouptasks();
                 })
                 .catch((error) => {
                     alert("Failed to delete group.");

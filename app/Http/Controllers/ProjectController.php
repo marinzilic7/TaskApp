@@ -25,7 +25,7 @@ class ProjectController extends Controller
     }
 
     public function getProject($id){
-        $project = Project::where('team_id', $id)->get(); // Dohvaća prvi projekt s odgovarajućim 'team_id'
+        $project = Project::where('team_id', $id)->get();
     return response()->json($project);
 
     }

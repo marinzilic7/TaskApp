@@ -6,8 +6,13 @@ import Navbar from "../components/Navbar.vue";
     <div>
         <Navbar />
     </div>
-    <h3 class="text-center mt-5">Tvoji timovi</h3>
+    <h3 class="text-center mt-5 mb-3">Dodjeljeni zadaci</h3>
+    <hr />
+    <div v-if="yourTeam.length === 0">
+        <h4 class="text-center mt-5">Trenutno nemate dodjeljenih zadataka</h4>
+    </div>
     <div
+        v-else
         class="accordion accordion-flush border mt-5 ms-5 me-5"
         id="accordionFlushExample"
     >
@@ -189,7 +194,7 @@ export default {
                 .get("/getYourTeam")
                 .then((response) => {
                     this.yourTeam = response.data;
-                    this.teamId = response.data.map((team) => team.team_id); // Dohvati sve team_id
+                    this.teamId = response.data.map((team) => team.team_id);
                     console.log("Team IDs:", this.teamId);
                 })
                 .catch((error) => {
@@ -207,7 +212,6 @@ export default {
                         axios
                             .get(`/getTasksByProject/${project.id}`)
                             .then((taskResponse) => {
-                                // Dodavanje tasks polja projektu
                                 project.tasks = taskResponse.data;
                             })
                             .catch((error) => {
@@ -242,10 +246,9 @@ export default {
                 "hr-HR",
                 options
             ).format(new Date(date));
-            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
+
             const [day, month, year] = formattedDate.split(" ");
 
-            // Uzmi prva tri slova mjeseca i spoji dijelove
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
         deleteProjectTasks(id) {
@@ -253,7 +256,12 @@ export default {
                 .post(`/deleteProjectTasks/${id}`)
                 .then((response) => {
                     console.log(response.data);
-                    this.getProject(this.teamId);
+                    const taskIndex = this.tasks.findIndex(
+                        (task) => task.id === id
+                    );
+                    if (taskIndex !== -1) {
+                        this.tasks[taskIndex].completed = 1;
+                    }
                 })
                 .catch((error) => {
                     console.error("Error deleting task:", error);

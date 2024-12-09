@@ -112,7 +112,7 @@ class UsersController extends Controller
         // Pohranjivanje slike
         $image->move(public_path('profile_images'), $image_name);
 
-        // Ažuriranje korisnikovog profila sa slikom
+
         $user->image = $image_name;
         $user->save();
 
@@ -143,8 +143,8 @@ public function promoteUser($id){
 public function changePassword(Request $request)
 {
     $data = $request->validate([
-        'currentPassword' => 'required|min:5',  // Validacija za staru lozinku
-        'newPassword' => 'required|min:5',      // Validacija za novu lozinku
+        'currentPassword' => 'required|min:5',
+        'newPassword' => 'required|min:5',
     ]);
 
     $user = Auth::user();
@@ -155,7 +155,7 @@ public function changePassword(Request $request)
     }
 
     // Ažuriraj lozinku
-    $user->password = bcrypt($data['newPassword']); // Sva lozinka se mijenja s novom
+    $user->password = bcrypt($data['newPassword']);
     $user->save();
 
     return response()->json(['message' => 'Lozinka je uspješno promijenjena']);

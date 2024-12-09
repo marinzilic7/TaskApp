@@ -1,6 +1,6 @@
 <script setup>
-import Navbar from "@/components/Navbar.vue"; // Import komponente Navbar
-import Sidebar from "@/components/Sidebar.vue"; // Import komponente Sidebar
+import Navbar from "@/components/Navbar.vue";
+import Sidebar from "@/components/Sidebar.vue";
 </script>
 
 <template>
@@ -267,17 +267,16 @@ import Sidebar from "@/components/Sidebar.vue"; // Import komponente Sidebar
         :group="group"
         :subtasks="subtasks"
         ref="sidebar"
-
     />
 </template>
 
 <script>
-import axios from "axios"; // Import za axios
+import axios from "axios";
 
 export default {
     data() {
         return {
-            groupId: this.$route.params.id, // Dohvat ID-a grupe s URL-a
+            groupId: this.$route.params.id,
             group: {},
             subtaskTitle: null,
             subtasks: [],
@@ -293,7 +292,7 @@ export default {
     created() {
         this.getGroupData(this.groupId);
         if (this.subtasks.length === 0) {
-            this.getSubtasks(this.groupId); // Pozivanje samo ako još nisu dohvaćeni
+            this.getSubtasks(this.groupId);
         }
 
         this.getCompletedSubtasks(this.groupId);
@@ -301,24 +300,23 @@ export default {
     },
     watch: {
         "$route.params.id": function (newId) {
-            this.groupId = newId; // Ažuriraj `groupId`
+            this.groupId = newId;
             this.getGroupData(this.groupId);
             this.getCompletedSubtasks();
-            this.getSubtasks(this.groupId); // Ponovo dohvatiti podatke za novi ID
+            this.getSubtasks(this.groupId);
         },
     },
     mounted() {
         this.newDate = new Date();
     },
     methods: {
-        // Funkcija za dohvat podataka o grupi
         async getGroupData(id) {
             try {
-                const response = await axios.get(`/getGroupData/${id}`); // API endpoint za dohvat podataka o grupi
-                this.group = response.data; // Pohranjivanje podataka u 'group' objekt
-                console.log("Ovo su podaci grupe", this.group); // Ispis podataka u konzoli
+                const response = await axios.get(`/getGroupData/${id}`);
+                this.group = response.data;
+                console.log("Ovo su podaci grupe", this.group);
             } catch (error) {
-                console.error("Error fetching group data:", error); // Obrada pogreške
+                console.error("Error fetching group data:", error);
             }
         },
         addSubtask() {
@@ -334,7 +332,6 @@ export default {
                     this.getSubtasks(this.groupId);
 
                     this.$refs.sidebar.getGrouptasks();
-
 
                     this.subtaskTitle = "";
                 })
@@ -377,21 +374,19 @@ export default {
                 options
             ).format(new Date(date));
 
-            // Podijeli datum na dijelove (npr. "4. prosinac 2024.")
             const [day, month, year] = formattedDate.split(" ");
 
-            // Skrati naziv mjeseca na prva tri slova
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
         formatForComparison(date) {
             const parsedDate = new Date(date);
             parsedDate.setHours(0, 0, 0, 0);
-            // Provjera valjanosti datuma
+
             if (isNaN(parsedDate)) {
-                return null; // Ako datum nije ispravan, vratiti null
+                return null;
             }
 
-            return parsedDate; // Vraća Date objekt za usporedbu
+            return parsedDate;
         },
 
         addDeadline(taskId) {
@@ -411,7 +406,7 @@ export default {
             const task = this.subtasks.find((task) => task.id === taskId);
 
             if (task) {
-                task.deadline = null; // Resetiranje roka
+                task.deadline = null;
                 console.log(task.deadline);
             }
         },
@@ -422,29 +417,26 @@ export default {
                 "hr-HR",
                 options
             ).format(new Date(date));
-            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
+
             const [day, month, year] = formattedDate.split(" ");
 
-            // Uzmi prva tri slova mjeseca i spoji dijelove
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
 
         important(id) {
             const task = this.subtasks.find((task) => task.id === id);
             if (task) {
-                task.isImportant = !task.isImportant; // Privremeno promijeni status
+                task.isImportant = !task.isImportant;
             }
 
-            // Pošalji zahtjev na server
             axios
                 .post(`/importantSubtask/${id}`)
                 .then(() => {
-                    // Opcionalno, ponovno učitaj zadatke ako je potrebno
                     this.getSubtasks(this.groupId);
                 })
                 .catch((error) => {
                     console.error("Greška pri označavanju zadatka:", error);
-                    // Vraćanje na prethodno stanje ako dođe do greške
+
                     if (task) {
                         task.isImportant = !task.isImportant;
                     }
@@ -454,10 +446,10 @@ export default {
         deleteCompletedSubtask(id) {
             axios
                 .post(`/deleteCompletedSubtask/${id}`, {
-                    groupId: this.groupId, // Dodajte groupId u tijelo zahtjeva
+                    groupId: this.groupId,
                 })
                 .then((response) => {
-                    this.getSubtasks(this.groupId); // Promijenite taskId u groupId za poziv
+                    this.getSubtasks(this.groupId);
                     this.getCompletedSubtasks(this.groupId);
                     this.updateProgress();
                 })
@@ -480,21 +472,18 @@ export default {
 
         updateProgress() {
             const completedTasksCount = this.subtasks.filter(
-                (task) => task.completed === true || task.completed === 1 // Provjerite vrijednost koju koristite za označavanje završenih zadataka
+                (task) => task.completed === true || task.completed === 1
             ).length;
 
             console.log("Ukupan broj zadataka:", this.totalTasks);
             console.log("Broj završenih zadataka:", completedTasksCount);
 
-            // Ako postoji barem jedan zadatak, izračunajte postotak
             if (this.totalTasks > 0) {
                 this.progress = (completedTasksCount / this.totalTasks) * 100;
             } else {
                 this.progress = 0;
             }
         },
-
-
     },
 };
 </script>

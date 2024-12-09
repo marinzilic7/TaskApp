@@ -4,6 +4,7 @@ import { ref } from "vue";
 import axios from "axios";
 
 const image = ref(null);
+const navbarRef = ref(null);
 
 const uploadImage = async () => {
     const formData = new FormData();
@@ -16,6 +17,8 @@ const uploadImage = async () => {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         });
+
+        navbarRef.value.isLogged();
         alert(response.data.message);
     } catch (error) {
         if (error.response && error.response.status === 400) {
@@ -33,7 +36,7 @@ const imageChange = (event) => {
 
 <template style="background-color: #eee">
     <div>
-        <Navbar />
+        <Navbar  ref="navbarRef"  />
     </div>
 
     <div>
@@ -273,7 +276,7 @@ export default {
                 })
                 .catch((error) => {
                     if (error.response && error.response.status === 400) {
-                        alert(error.response.data.error); // Prikazivanje greške sa backend-a
+                        alert(error.response.data.error);
                     } else {
                         console.error(error);
                         alert("Došlo je do greške pri promeni lozinke.");
@@ -325,11 +328,11 @@ export default {
 }
 
 .upload-input {
-    display: none; /* Sakrij originalni input */
+    display: none;
 }
 
 .custom-label {
-    background-color: #007bff; /* Plava boja */
+    background-color: #007bff;
     color: white;
     padding: 10px;
     border-radius: 5px;

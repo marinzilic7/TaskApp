@@ -12,16 +12,16 @@ class ProfileController extends Controller
 {
 
 
-    $user = Auth::user(); // Ensure Auth::user() returns an instance of your User model
+    $user = Auth::user();
     if (!$user instanceof \App\Models\User) {
         return response()->json(['error' => 'Unauthorized'], 401);
     }
     $imageName = time().'.'.$request->image->extension();
 
-    // Store the image in the public storage
+
     $request->image->move(public_path('images'), $imageName);
 
-    // Update user's profile image path
+
     $user->image = $imageName;
     $user->save();
 

@@ -22,19 +22,19 @@ class TeamMemberController extends Controller
     }
 
     public function getMemberGroup($teamId) {
-        // Dohvati članove tima zajedno s podacima o korisnicima (npr. ime)
+
         $members = TeamMember::where('team_id', $teamId)
-            ->with('user')  // Pretpostavljamo da imate relaciju 'user' između TeamMember i User modela
+            ->with('user')
             ->get();
 
-        // Vraćamo podatke o članovima tima s korisničkim informacijama
+
         return response()->json($members);
     }
 
     public function getYourTeam(){
         $user = auth()->user();
         $teams = TeamMember::where('user_id', $user->id)
-            ->with('team') // Uključuje podatke o timu
+            ->with('team')
             ->get();
         return response()->json($teams);
     }

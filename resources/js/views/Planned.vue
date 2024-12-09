@@ -416,13 +416,14 @@ import Sidebar from "../components/Sidebar.vue";
                 id="flush-collapseFour"
                 class="accordion-collapse collapse"
                 data-bs-parent="#accordionFlushExample"
-            >    <div
+            >
+                <div
                     class="accordion-body"
                     v-if="
                         !tasks.some(
                             (task) =>
-                            task.completed === 0 &&
-                            getDaysDifference(task.deadline) >= 2
+                                task.completed === 0 &&
+                                getDaysDifference(task.deadline) >= 2
                         )
                     "
                 >
@@ -583,47 +584,7 @@ export default {
         setCurrentTaskId(taskId) {
             this.currentTaskId = taskId;
         },
-        addSubtask() {
-            if (!this.currentTaskId) {
-                alert("Task ID nije postavljen!");
-                return;
-            }
-            const subtaskData = {
-                task_id: this.currentTaskId,
-                title: this.subtaskTitle,
-            };
-            console.log("Dodavanje podzadatka za task ID:", subtaskData);
 
-            axios
-                .post("/addSubtask", subtaskData)
-                .then((response) => {
-                    alert(response.data.message);
-                    this.getTasks(); // Osvježavanje liste taskova.
-                })
-                .catch((error) => {
-                    console.error("Greška pri dodavanju podzadatka:", error);
-                });
-        },
-        getSubtasks(taskId) {
-            axios
-                .get(`/getSubtasks/${taskId}`)
-                .then((response) => {
-                    // Dodajte podzadatke u odgovarajući task
-                    const task = this.tasks.find((task) => task.id === taskId);
-                    if (task) {
-                        task.subtasks = response.data; // Dodajte podzadatke u task
-                        console.log(
-                            "Podzadaci za task",
-                            taskId,
-                            "su:",
-                            response.data
-                        );
-                    }
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        },
         currentTime() {
             setInterval(() => {
                 const currentDate = new Date();
@@ -666,7 +627,6 @@ export default {
                 document.getElementById("offcanvasExample");
 
             if (offcanvasElement) {
-                // Koristite Bootstrap Offcanvas API za zatvaranje
                 const offcanvasInstance =
                     bootstrap.Offcanvas.getInstance(offcanvasElement);
                 if (offcanvasInstance) {
@@ -681,7 +641,7 @@ export default {
                     this.importantTask = response.data;
                     console.log("Ovo su taskovi", this.importantTask);
                     this.importantTask.forEach((task) => {
-                        this.getSubtasks(task.id); // Dohvaćamo podzadatke za svaki task
+                        this.getSubtasks(task.id);
                     });
                 })
                 .catch((error) => {
@@ -695,10 +655,8 @@ export default {
                 options
             ).format(new Date(date));
 
-            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
             const [day, month, year] = formattedDate.split(" ");
 
-            // Uzmi prva tri slova mjeseca i spoji dijelove
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
 
@@ -708,7 +666,7 @@ export default {
             console.log("Trenutni datum jeeeeeeee", this.newDate);
             console.log("Odabrani datum jeee", task.deadline);
             if (task) {
-                task.deadline = null; // Resetiranje roka
+                task.deadline = null;
                 console.log(task.deadline);
             }
         },
@@ -732,22 +690,20 @@ export default {
                 options
             ).format(new Date(date));
 
-            // Podijeli datum na dijelove (npr. "4. prosinac 2024.")
             const [day, month, year] = formattedDate.split(" ");
 
-            // Skrati naziv mjeseca na prva tri slova
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
         formatForComparison(date) {
             const parsedDate = new Date(date);
             parsedDate.setHours(0, 0, 0, 0);
-            // Provjera valjanosti datuma
+
             if (isNaN(parsedDate)) {
                 console.error("Neispravan datum:", date);
-                return null; // Ako datum nije ispravan, vratiti null
+                return null;
             }
 
-            return parsedDate; // Vraća Date objekt za usporedbu
+            return parsedDate;
         },
         deleteCompleted(taskId) {
             axios
@@ -783,7 +739,6 @@ export default {
             const today = new Date();
             const deadline = new Date(date);
 
-            // Postavite oba datuma na početak dana (00:00:00)
             today.setHours(0, 0, 0, 0);
             deadline.setHours(0, 0, 0, 0);
 
@@ -799,7 +754,7 @@ export default {
                     this.unTasks = response.data;
                     console.log("Ovo su NEDOVRŠENI TASKOVI", this.unTasks);
                     this.unTasks.forEach((task) => {
-                        this.getSubtasks(task.id); // Dohvaćamo podzadatke za svaki task
+                        this.getSubtasks(task.id);
                     });
                 })
                 .catch((error) => {
@@ -862,19 +817,19 @@ li {
 }
 
 .task-date {
-    position: absolute; /* Fiksiranje datuma u sredinu */
+    position: absolute;
     left: 50%;
     margin-top: 3px;
     transform: translateX(-50%);
-    font-size: 12px; /* Pomaknite datum u sredinu */
+    font-size: 12px;
 }
 
 .task-date-input {
-    position: absolute; /* Fiksiranje datuma u sredinu */
-    left: 55%;
+    position: absolute;
+    left: 57%;
     margin-top: 3px;
     transform: translateX(-50%);
-    font-size: 12px; /* Pomaknite datum u sredinu */
+    font-size: 12px;
 }
 
 .task-calendar {

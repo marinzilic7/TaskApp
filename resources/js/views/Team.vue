@@ -61,7 +61,11 @@ import Sidebar from "../components/Sidebar.vue";
                 </tr>
                 <tr v-else v-for="team in teams" :key="team.id">
                     <th scope="row">{{ team.id }}</th>
-                    <td><RouterLink  :to="'/team/' + team.id">{{ team.name }}</RouterLink></td>
+                    <td>
+                        <RouterLink :to="'/team/' + team.id">{{
+                            team.name
+                        }}</RouterLink>
+                    </td>
                     <td>
                         {{ team.user.firstName + " " + team.user.lastName }}
                     </td>
@@ -204,18 +208,16 @@ export default {
                 "hr-HR",
                 options
             ).format(new Date(date));
-            // Podijeli datum na dijelove (npr. "3. prosinac 2024.")
+
             const [day, month, year] = formattedDate.split(" ");
 
-            // Uzmi prva tri slova mjeseca i spoji dijelove
             return `${day} ${month.substring(0, 3)} ${year}`;
         },
 
         openUpdateModal(team) {
-            // Postavi podatke o timu u trenutno uređivani tim
             this.updatedTeam = { ...team };
             this.updateName = team.name;
-            // Prikaži modal koristeći Bootstrap
+
             const modal = new bootstrap.Modal(
                 document.getElementById("updateTeam")
             );
@@ -224,14 +226,12 @@ export default {
 
         updateTeam() {
             axios
-                .post(`updateTeam/${this.updatedTeam.id}`, this.updatedTeam) // Pretpostavlja se da backend ima PUT endpoint za ažuriranje
+                .post(`updateTeam/${this.updatedTeam.id}`, this.updatedTeam)
                 .then((response) => {
                     console.log("Ažuriran tim:", this.updatedTeam);
 
-                    // Osvježi listu timova nakon ažuriranja
                     this.getTeams();
 
-                    // Sakrij modal
                     const modal = bootstrap.Modal.getInstance(
                         document.getElementById("updateTeam")
                     );
@@ -248,7 +248,7 @@ export default {
                 .then((response) => {
                     console.log("Obrisani tim:", id);
 
-                    // Osvježi listu timova nakon brisanja
+
                     this.getTeams();
                 })
                 .catch((error) => {

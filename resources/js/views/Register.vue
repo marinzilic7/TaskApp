@@ -13,7 +13,7 @@
                 class="d-flex vh-100 justify-content-center align-items-center"
             >
                 <form
-                    class="bg-light col-12 col-lg-5 col-md-5 col-sm-5 p-4 rounded"
+                    class="bg-light col-12 col-lg-5 col-md-9 col-sm-5 p-4 rounded"
                     @submit.prevent="registerUser"
                 >
                     <div
@@ -137,6 +137,7 @@ export default {
                 .then((response) => {
                     this.message = response.data.message;
                     this.successRegister = true;
+                    this.clearForm();
                     setInterval(() => {
                         this.successRegister = false;
                     }, 2000);
@@ -150,6 +151,13 @@ export default {
                     }
                 });
         },
+        clearForm(){
+            this.form.firstName = "";
+            this.form.lastName = "";
+            this.form.email = "";
+            this.form.password = "";
+            this.errors = {};
+        }
     },
 };
 </script>

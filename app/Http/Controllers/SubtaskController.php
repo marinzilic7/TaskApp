@@ -70,24 +70,24 @@ class SubtaskController extends Controller
 
     public function deleteCompletedSubtask(Request $request, $taskId)
     {
-        // Validacija za groupId
+
         $request->validate([
-            'groupId' => 'required|exists:groups,id', // Provjera da li grupa postoji
+            'groupId' => 'required|exists:groups,id',
         ]);
 
-        // Dohvat 'groupId' iz zahtjeva
+
         $groupId = $request->groupId;
 
-        // Ažuriranje podzadatka tako da postavimo 'completed' na true
+
         $subtask = Subtask::where('group_id', $groupId)
             ->where('id', $taskId)
-            ->where('completed', true) // Provjera da je podzadatak još uvijek nije označen kao završen
+            ->where('completed', true)
             ->first();
 
-        // Ako podzadatak postoji
 
-            $subtask->completed = false;// Postavljanje 'completed' na true
-            $subtask->save(); // Spremanje promjena u bazu
+
+            $subtask->completed = false;
+            $subtask->save();
 
 
     }
