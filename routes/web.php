@@ -101,7 +101,7 @@ Route::get('getTasksByProject/{id}', [ProjectTaskController::class, 'getTasksByP
 Route::post('deleteProjectTasks/{id}', [ProjectTaskController::class, 'deleteProjectTasks']);
 Route::post('assignTaskToMember/{id}', [ProjectTaskController::class, 'assignTaskToMember']);
 Route::post('addTaskProjectDeadline/{id}', [ProjectTaskController::class, 'addTaskProjectDeadline']);
-
+Route::get('getTasksByProjectMember/{id}', [ProjectTaskController::class, 'getTasksByProjectMember']);
 
 Route::get('getYourTeam', [TeamMemberController::class, 'getYourTeam']);
 

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('deadline')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');
-            $table->foreign('member_id')->references('id')->on('team_members')->onDelete('cascade');
+            $table->foreign('member_id')->references('user_id')->on('team_members')->onDelete('cascade');
             $table->timestamps();
         });
     }

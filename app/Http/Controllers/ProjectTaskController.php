@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProjectTask;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectTaskController extends Controller
 {
@@ -81,6 +82,19 @@ class ProjectTaskController extends Controller
         $task->save();
 
         return response()->json(['message' => 'Task deadline added successfully']);
+    }
+
+    public function getTasksByProjectMember($projectId) {
+        // Dohvati trenutno prijavljenog korisnika
+        $userId = Auth::id();
+
+        // Dohvati zadatke dodijeljene korisniku
+        $tasks = ProjectTask::where('project_id', $projectId)
+                            ->where('member_id', $userId)
+                            ->with('user') // Filtriraj prema ID-u prijavljenog korisnika
+                            ->get();
+
+        return response()->json($tasks); // Vraća zadatke u JSON formatu
     }
 
 
